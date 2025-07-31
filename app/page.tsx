@@ -1,103 +1,410 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { foodService, recommendationService } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import FoodCard from "@/components/partials/Foodcard";
+import { Food, FoodCategory, MethodInfo } from "@/types";
+import {
+  Utensils,
+  Users,
+  Star,
+  TrendingUp,
+  ArrowRight,
+  Brain,
+  Zap,
+  Heart,
+  Award,
+  CheckCircle,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+
+export default function HomePage() {
+  const { isAuthenticated, user } = useAuth();
+  const [featuredFoods, setFeaturedFoods] = useState<Food[]>([]);
+  const [categories, setCategories] = useState<FoodCategory[]>([]);
+  const [methodInfo, setMethodInfo] = useState<MethodInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [isAuthenticated]);
+
+  const fetchInitialData = async () => {
+    try {
+      const [foodsResponse, categoriesResponse] = await Promise.all([
+        foodService.getFoods({ per_page: 6 }),
+        foodService.getCategories(),
+      ]);
+
+      setFeaturedFoods(foodsResponse.foods || []);
+      setCategories(categoriesResponse.categories || []);
+
+      // Get recommendation info if authenticated
+      if (isAuthenticated) {
+        try {
+          const methodResponse = await recommendationService.getMethodInfo();
+          setMethodInfo(methodResponse);
+        } catch (error) {
+          console.error("Error fetching method info:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+      toast.error("Gagal memuat data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              Sistem Rekomendasi Menu Diet
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 text-primary-100">
+              Temukan makanan sehat yang tepat untuk program diet Anda dengan
+              teknologi AI
+            </p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {/* Enhanced CTA based on auth status */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    href="/register"
+                    className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+                  >
+                    Mulai Sekarang
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                  <Link
+                    href="/foods"
+                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                  >
+                    <Utensils className="mr-2 w-5 h-5" />
+                    Lihat Makanan
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/recommendations"
+                    className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+                  >
+                    <Star className="mr-2 w-5 h-5" />
+                    Dapatkan Rekomendasi
+                  </Link>
+                  <Link
+                    href="/meal-planning"
+                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                  >
+                    <Award className="mr-2 w-5 h-5" />
+                    Meal Planning
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* User welcome message */}
+            {isAuthenticated && user && (
+              <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto">
+                <p className="text-primary-100">
+                  Selamat datang kembali,{" "}
+                  <span className="font-semibold">{user.nama}</span>!
+                </p>
+                {methodInfo && (
+                  <p className="text-sm text-primary-200 mt-1">
+                    Menggunakan metode{" "}
+                    {methodInfo.data.current_method.replace("_", " ")}
+                    dengan {methodInfo.data.total_users} pengguna aktif
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* AI Features Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Teknologi AI Terdepan
+            </h2>
+            <p className="text-lg text-gray-600">
+              Sistem rekomendasi yang cerdas dan terus belajar dari preferensi
+              Anda
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Content-Based */}
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Brain className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Content-Based Filtering
+              </h3>
+              <p className="text-gray-600">
+                Rekomendasi berdasarkan karakteristik makanan dan profil
+                kesehatan Anda
+              </p>
+            </div>
+
+            {/* Collaborative */}
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Collaborative Filtering
+              </h3>
+              <p className="text-gray-600">
+                Belajar dari pengguna dengan preferensi serupa untuk rekomendasi
+                yang lebih akurat
+              </p>
+              {methodInfo && (
+                <div className="mt-2">
+                  {methodInfo.data.collaborative_available ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Aktif
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Butuh{" "}
+                      {methodInfo.data.users_needed_for_collaborative -
+                        methodInfo.data.total_users}{" "}
+                      pengguna lagi
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Hybrid */}
+            <div className="text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Hybrid System
+              </h3>
+              <p className="text-gray-600">
+                Kombinasi optimal dari berbagai metode untuk hasil terbaik
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* System Stats */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Utensils className="w-8 h-8 text-primary-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">500+</h3>
+              <p className="text-gray-600">Variasi Makanan Sehat</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-primary-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                {methodInfo?.data.total_users || "50+"}
+              </h3>
+              <p className="text-gray-600">Pengguna Aktif</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-primary-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                {methodInfo?.data.total_ratings_in_system || "1000+"}
+              </h3>
+              <p className="text-gray-600">Rating Makanan</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-primary-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                AI-Powered
+              </h3>
+              <p className="text-gray-600">Sistem Rekomendasi</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Foods */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Makanan Diet Populer
+            </h2>
+            <p className="text-lg text-gray-600">
+              Pilihan makanan sehat dengan rating tinggi dari pengguna
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {featuredFoods.map((food) => (
+              <FoodCard
+                key={food.food_id}
+                food={food}
+                showRating={isAuthenticated}
+              />
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link
+              href="/foods"
+              className="bg-blue-500 hover:bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center"
+            >
+              Lihat Semua Makanan
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Preview */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Kategori Makanan
+            </h2>
+            <p className="text-lg text-gray-600">
+              Jelajahi berbagai kategori makanan sehat
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {categories.slice(0, 8).map((category) => (
+              <Link
+                key={category.category_id}
+                href={`/foods?category_id=${category.category_id}`}
+                className="bg-white hover:bg-primary-50 p-6 rounded-lg text-center transition-colors group border border-gray-200 hover:border-primary-200"
+              >
+                <div className="bg-primary-100 group-hover:bg-primary-200 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Utensils className="w-6 h-6 text-primary-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  {category.category_name}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {category.description || "Kategori makanan sehat"}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Cara Kerja Sistem
+            </h2>
+            <p className="text-lg text-gray-600">
+              Sistem rekomendasi berbasis AI untuk menu diet personal
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-blue-600">1</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Daftar & Lengkapi Profil
+              </h3>
+              <p className="text-gray-600">
+                Buat akun dan isi informasi kesehatan serta preferensi diet Anda
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-green-600">2</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Rating Makanan
+              </h3>
+              <p className="text-gray-600">
+                Beri rating pada makanan yang Anda sukai untuk melatih sistem AI
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-purple-600">3</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Dapatkan Rekomendasi
+              </h3>
+              <p className="text-gray-600">
+                Terima rekomendasi makanan personal berdasarkan preferensi dan
+                kesehatan Anda
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      {!isAuthenticated && (
+        <section className="py-16 bg-primary-600 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Siap Memulai Diet Sehat Anda?
+            </h2>
+            <p className="text-xl text-primary-100 mb-8">
+              Bergabunglah dengan ribuan pengguna yang sudah merasakan
+              manfaatnya
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/register"
+                className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+              >
+                <Heart className="mr-2 w-5 h-5" />
+                Daftar Gratis Sekarang
+              </Link>
+              <Link
+                href="/foods"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+              >
+                <Utensils className="mr-2 w-5 h-5" />
+                Lihat Makanan Dulu
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
