@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
@@ -15,9 +16,18 @@ export default function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // Redirect jika sudah authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const redirectTo = searchParams.get("redirect") || "/";
+      router.push(redirectTo);
+    }
+  }, [isAuthenticated, router, searchParams]);
+
+  // Jangan render jika sudah authenticated
   if (isAuthenticated) {
-    router.push("/");
     return null;
   }
 
@@ -26,19 +36,37 @@ export default function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error saat user mulai typing
+    if (error) setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
-    const success = await login(formData.email, formData.password);
-    if (success) {
-      const redirectTo = (router.query.redirect as string) || "/";
-      router.push(redirectTo);
+    try {
+      console.log("Attempting login..."); // Debug log
+
+      const success = await login({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      console.log("Login success:", success); // Debug log
+
+      if (success) {
+        const redirectTo = searchParams.get("redirect") || "/";
+        router.push(redirectTo);
+      } else {
+        setError("Email atau password salah. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Terjadi kesalahan saat login. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -63,6 +91,12 @@ export default function Login() {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-4">
             <div>
               <label

@@ -14,9 +14,7 @@ export default function Footer(): JSX.Element {
             </div>
             <span className="text-lg font-semibold">DietRecom</span>
           </div>
-          <p className="text-gray-400 mb-2">
-            Sistem Rekomendasi Menu Diet dengan AI
-          </p>
+          <p className="text-gray-400 mb-2">Sistem Rekomendasi Menu Diet</p>
           <p className="text-gray-500 text-sm">
             © 2024 Diet Recommendation System. All rights reserved.
           </p>

@@ -376,6 +376,7 @@ export interface QuickMealSuggestions {
 
 // ==================== MEDICAL CONDITION TYPES ====================
 export interface MedicalCondition {
+  id: any;
   condition_id: number;
   condition_name: string;
   condition_code: string;

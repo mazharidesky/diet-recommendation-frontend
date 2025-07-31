@@ -11,7 +11,6 @@ export const metadata: Metadata = {
     "Sistem Rekomendasi Menu Diet dengan AI - Temukan makanan sehat yang tepat untuk program diet Anda",
   keywords: "diet, rekomendasi, makanan sehat, AI, machine learning, nutrisi",
   authors: [{ name: "Diet Recommendation Team" }],
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

@@ -76,8 +76,7 @@ export default function HomePage() {
               Sistem Rekomendasi Menu Diet
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-100">
-              Temukan makanan sehat yang tepat untuk program diet Anda dengan
-              teknologi AI
+              Temukan makanan sehat yang tepat untuk program diet Anda
             </p>
 
             {/* Enhanced CTA based on auth status */}

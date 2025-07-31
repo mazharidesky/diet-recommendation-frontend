@@ -512,11 +512,51 @@ class AuthService {
   constructor(private api: ApiClient) {}
 
   async login(credentials: LoginForm): Promise<LoginResponse> {
-    return this.api.login(credentials);
+    console.log("🔥 AuthService.login called with:", {
+      email: credentials.email,
+    });
+
+    try {
+      const response = await this.api.login(credentials);
+      console.log("🔥 API response:", response);
+
+      // PENTING: Simpan token setelah login berhasil
+      if (response.token) {
+        console.log(
+          "🔥 Storing token:",
+          response.token.substring(0, 20) + "..."
+        );
+        this.api.setAuthToken(response.token);
+      }
+
+      return response;
+    } catch (error) {
+      console.error("🔥 AuthService.login error:", error);
+      throw error;
+    }
   }
 
   async register(userData: RegisterForm): Promise<LoginResponse> {
-    return this.api.register(userData);
+    console.log("🔥 AuthService.register called");
+
+    try {
+      const response = await this.api.register(userData);
+      console.log("🔥 Register response:", response);
+
+      // PENTING: Simpan token setelah register berhasil
+      if (response.token) {
+        console.log(
+          "🔥 Storing token after register:",
+          response.token.substring(0, 20) + "..."
+        );
+        this.api.setAuthToken(response.token);
+      }
+
+      return response;
+    } catch (error) {
+      console.error("🔥 AuthService.register error:", error);
+      throw error;
+    }
   }
 
   async getProfile(): Promise<{ user: User }> {
@@ -524,11 +564,14 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
+    console.log("🔥 Logging out - removing token");
     this.api.removeAuthToken();
   }
 
   isAuthenticated(): boolean {
-    return this.api.isAuthenticated();
+    const isAuth = this.api.isAuthenticated();
+    console.log("🔥 isAuthenticated check:", isAuth);
+    return isAuth;
   }
 }
 
