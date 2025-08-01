@@ -169,7 +169,7 @@ class ApiClient {
     params?: RecommendationParams
   ): Promise<RecommendationResponse> {
     const response = await this.client.get<RecommendationResponse>(
-      "/recommendations",
+      "/recommendations/",
       { params }
     );
     return response.data;

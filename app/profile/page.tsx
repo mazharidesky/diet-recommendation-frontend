@@ -116,43 +116,126 @@ export default function ProfilePage() {
     }
   };
 
-  // const handleMedicalConditionToggle = async (condition: MedicalCondition) => {
-  //   const isSelected = userMedicalConditions.some(
-  //     (userCondition) => userCondition.medical_condition_id === condition.id
-  //   );
+  const handleMedicalConditionToggleViaService = async (
+    condition: MedicalCondition
+  ) => {
+    const isSelected = userMedicalConditions.some(
+      (userCondition) => userCondition.condition_id === condition.condition_id
+    );
 
-  //   try {
-  //     if (isSelected) {
-  //       await userService.getMedicalConditions(
-  //         condition.id,
-  //         /* provide second argument here, e.g. */ null
-  //       );
-  //       setUserMedicalConditions((prev) =>
-  //         prev.filter((uc) => uc.medical_condition_id !== condition.id)
-  //       );
-  //       toast.success(`${condition.nama} dihapus dari kondisi medis`);
-  //     } else {
-  //       await userService.getMedicalConditions(condition.id);
-  //       setUserMedicalConditions((prev) => [
-  //         ...prev,
-  //         {
-  //           // Use the properties required by UserMedicalCondition
-  //           id: Date.now(), // temporary ID
-  //           medical_condition_id: condition.condition_id,
-  //           condition_id: condition.condition_id,
-  //           condition_name: condition.condition_name,
-  //           condition_code: condition.condition_code,
-  //           severity: "unknown", // or set an appropriate default/severity if available
-  //           // Add other properties if UserMedicalCondition requires them
-  //         },
-  //       ]);
-  //       toast.success(`${condition.nama} ditambahkan ke kondisi medis`);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating medical condition:", error);
-  //     toast.error("Gagal memperbarui kondisi medis");
-  //   }
-  // };
+    try {
+      let updatedConditions;
+
+      if (isSelected) {
+        // Remove condition
+        updatedConditions = userMedicalConditions
+          .filter((uc) => uc.condition_id !== condition.condition_id)
+          .map((uc) => ({
+            condition_id: uc.condition_id,
+            severity:
+              (uc.severity as "ringan" | "sedang" | "berat") || "sedang",
+            notes: uc.notes || "",
+          }));
+      } else {
+        // Add condition
+        updatedConditions = [
+          ...userMedicalConditions.map((uc) => ({
+            condition_id: uc.condition_id,
+            severity: uc.severity || "sedang",
+            notes: uc.notes || "",
+          })),
+          {
+            condition_id: condition.condition_id,
+            severity: "sedang" as "ringan" | "sedang" | "berat",
+            notes: `Kondisi medis: ${condition.condition_name}`,
+          },
+        ];
+      }
+
+      // Using userService with correct payload structure
+      await userService.updateMedicalConditions({
+        conditions: updatedConditions, // ✅ BENAR: "conditions"
+      });
+
+      // Update local state
+      if (isSelected) {
+        setUserMedicalConditions((prev) =>
+          prev.filter((uc) => uc.condition_id !== condition.condition_id)
+        );
+        toast.success(`${condition.condition_name} dihapus dari kondisi medis`);
+      } else {
+        setUserMedicalConditions((prev) => [
+          ...prev,
+          {
+            id: Date.now(),
+            condition_id: condition.condition_id,
+            medical_condition_id: condition.condition_id,
+            condition_name: condition.condition_name,
+            condition_code: condition.condition_code,
+            severity: "sedang",
+            notes: `Kondisi medis: ${condition.condition_name}`,
+            description: condition.description || "",
+            dietary_focus: condition.dietary_focus || "",
+          },
+        ]);
+        toast.success(
+          `${condition.condition_name} ditambahkan ke kondisi medis`
+        );
+      }
+    } catch (error) {
+      console.error("🔥 Error updating medical condition:", error);
+      toast.error("Gagal memperbarui kondisi medis");
+    }
+  };
+
+  // Test manual dengan structure yang benar
+  const testMedicalConditionsAPI = async () => {
+    const token = document.cookie.split("token=")[1]?.split(";")[0];
+
+    // Test payload sesuai dokumentasi API
+    const testPayload = {
+      conditions: [
+        {
+          condition_id: 1,
+          severity: "sedang",
+          notes: "Test condition dari frontend",
+        },
+      ],
+    };
+
+    console.log("🔥 Testing with payload:", testPayload);
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/users/medical-conditions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(testPayload),
+        }
+      );
+
+      console.log("🔥 Test response status:", response.status);
+      const data = await response.json();
+      console.log("🔥 Test response data:", data);
+
+      if (response.ok) {
+        toast.success("Test API berhasil!");
+      } else {
+        toast.error(`Test API gagal: ${data.error || data.message}`);
+      }
+    } catch (error) {
+      console.error("🔥 Test API error:", error);
+      toast.error(
+        `Test API error: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  };
 
   const calculateBMI = () => {
     if (formData.berat_badan && formData.tinggi_badan) {
@@ -502,7 +585,9 @@ export default function ProfilePage() {
                           ? "border-blue-500 bg-blue-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
-                      // onClick={() => handleMedicalConditionToggle(condition)}
+                      onClick={() =>
+                        handleMedicalConditionToggleViaService(condition)
+                      }
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
