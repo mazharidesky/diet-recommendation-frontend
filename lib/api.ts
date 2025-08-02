@@ -724,6 +724,77 @@ class MealPlanningService {
   }
 }
 
+// Tambahkan function untuk test API secara manual
+const debugProfileUpdate = async () => {
+  const token = document.cookie.split("token=")[1]?.split(";")[0];
+
+  // Test dengan data minimal dulu
+  const minimalData = {
+    nama: "Azhari Desky",
+    umur: 22,
+    jenis_kelamin: "L",
+  };
+
+  console.log("🔍 Testing minimal data:", minimalData);
+
+  try {
+    const response = await fetch("http://localhost:5000/api/users/profile", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(minimalData),
+    });
+
+    console.log("✅ Response status:", response.status);
+    const data = await response.json();
+    console.log("✅ Response data:", data);
+
+    if (!response.ok) {
+      console.error("❌ Error response:", data);
+    }
+  } catch (error) {
+    console.error("❌ Network error:", error);
+  }
+};
+
+// Test dengan data lengkap tapi nilai 0 instead of null
+const testFullData = async () => {
+  const token = document.cookie.split("token=")[1]?.split(";")[0];
+
+  const fullData = {
+    nama: "Azhari Desky",
+    umur: 22,
+    jenis_kelamin: "L",
+    tinggi_badan: 0, // Coba dengan 0 instead of null
+    berat_badan: 0,
+    target_berat: 0,
+    aktivitas: "very_active",
+    diet_goal: "menambah",
+    alergi: "",
+  };
+
+  console.log("🔍 Testing full data with zeros:", fullData);
+
+  try {
+    const response = await fetch("http://localhost:5000/api/users/profile", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(fullData),
+    });
+
+    console.log("✅ Response status:", response.status);
+    const data = await response.json();
+    console.log("✅ Response data:", data);
+  } catch (error) {
+    console.error("❌ Error:", error);
+  }
+};
+
 class UserService {
   constructor(private api: ApiClient) {}
 

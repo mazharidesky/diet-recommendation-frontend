@@ -470,7 +470,9 @@ export interface ProfileUpdateForm {
   berat_badan?: number;
   target_berat?: number;
   aktivitas?: "sedentary" | "light" | "moderate" | "active" | "very_active";
-  diet_goal?: "menurunkan" | "menjaga" | "menambah";
+  diet_goal?: "menurunkan" | "menjaga" | "menaikkan"; // ✅ Ubah dari "menambah" ke "menaikkan"
+  bmr?: number;
+  target_kalori?: number;
   alergi?: string;
 }
 

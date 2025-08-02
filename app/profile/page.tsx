@@ -18,6 +18,8 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
+  Zap,
+  Calculator,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -32,7 +34,7 @@ export default function ProfilePage() {
     berat_badan: undefined,
     target_berat: undefined,
     aktivitas: "moderate",
-    diet_goal: "menjaga",
+    diet_goal: "menjaga", // ✅ Default value yang sesuai dengan enum
     alergi: "",
   });
   const [medicalConditions, setMedicalConditions] = useState<
@@ -50,29 +52,31 @@ export default function ProfilePage() {
       router.push("/login?redirect=/profile");
       return;
     }
-
     fetchInitialData();
   }, [isAuthenticated, user]);
 
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      // Set user data from context
       if (user) {
         setFormData({
           nama: user.nama || "",
-          umur: user.umur,
-          jenis_kelamin: user.jenis_kelamin,
-          tinggi_badan: user.tinggi_badan,
-          berat_badan: user.berat_badan,
-          target_berat: user.target_berat,
+          umur: user.umur || undefined,
+          jenis_kelamin: user.jenis_kelamin || undefined,
+          tinggi_badan: user.tinggi_badan || undefined,
+          berat_badan: user.berat_badan || undefined,
+          target_berat: user.target_berat || undefined,
           aktivitas: user.aktivitas || "moderate",
-          diet_goal: user.diet_goal || "menjaga",
+          diet_goal:
+            user.diet_goal === "menambah"
+              ? "menaikkan"
+              : user.diet_goal || "menjaga", // ✅ Pastikan enum sesuai
           alergi: user.alergi || "",
+          bmr: user.bmr || undefined,
+          target_kalori: user.target_kalori || undefined,
         });
       }
 
-      // Fetch medical conditions
       const [conditionsResponse, userConditionsResponse] = await Promise.all([
         userService.getMedicalConditions(),
         userService.getMyMedicalConditions(),
@@ -94,10 +98,30 @@ export default function ProfilePage() {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    setFormData((prev) => {
+      // Handle numeric fields
+      if (
+        ["umur", "tinggi_badan", "berat_badan", "target_berat"].includes(name)
+      ) {
+        const numericValue = value === "" ? undefined : parseFloat(value);
+        return {
+          ...prev,
+          [name]:
+            numericValue === undefined
+              ? undefined
+              : isNaN(numericValue)
+              ? undefined
+              : numericValue,
+        };
+      }
+
+      // Handle string fields
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -105,12 +129,47 @@ export default function ProfilePage() {
     setSaving(true);
 
     try {
-      await userService.updateProfile(formData);
-      await refreshUser(); // Refresh user data in context
+      // Filter out undefined values dan exclude bmr/target_kalori (dikalkulasi di backend)
+      const cleanedData = Object.fromEntries(
+        Object.entries(formData).filter(([key, value]) => {
+          if (key === "bmr" || key === "target_kalori") return false;
+          return value !== undefined && value !== null && value !== "";
+        })
+      );
+
+      console.log("🔍 Data yang akan dikirim:", cleanedData);
+
+      const response = await userService.updateProfile(cleanedData);
+
+      // Update formData dengan response dari backend
+      if (response.user) {
+        setFormData((prev) => ({
+          ...prev,
+          bmr: response.user.bmr,
+          target_kalori: response.user.target_kalori,
+        }));
+      }
+
+      await refreshUser();
       toast.success("Profil berhasil diperbarui!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Gagal memperbarui profil");
+
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as any).response === "object"
+      ) {
+        const response = (error as any).response;
+        console.error("Response data:", response.data);
+        console.error("Response status:", response.status);
+        toast.error(
+          `Gagal memperbarui profil: ${response.data?.error || "Unknown error"}`
+        );
+      } else {
+        toast.error("Gagal memperbarui profil");
+      }
     } finally {
       setSaving(false);
     }
@@ -127,7 +186,6 @@ export default function ProfilePage() {
       let updatedConditions;
 
       if (isSelected) {
-        // Remove condition
         updatedConditions = userMedicalConditions
           .filter((uc) => uc.condition_id !== condition.condition_id)
           .map((uc) => ({
@@ -137,7 +195,6 @@ export default function ProfilePage() {
             notes: uc.notes || "",
           }));
       } else {
-        // Add condition
         updatedConditions = [
           ...userMedicalConditions.map((uc) => ({
             condition_id: uc.condition_id,
@@ -152,12 +209,10 @@ export default function ProfilePage() {
         ];
       }
 
-      // Using userService with correct payload structure
       await userService.updateMedicalConditions({
-        conditions: updatedConditions, // ✅ BENAR: "conditions"
+        conditions: updatedConditions,
       });
 
-      // Update local state
       if (isSelected) {
         setUserMedicalConditions((prev) =>
           prev.filter((uc) => uc.condition_id !== condition.condition_id)
@@ -185,55 +240,6 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("🔥 Error updating medical condition:", error);
       toast.error("Gagal memperbarui kondisi medis");
-    }
-  };
-
-  // Test manual dengan structure yang benar
-  const testMedicalConditionsAPI = async () => {
-    const token = document.cookie.split("token=")[1]?.split(";")[0];
-
-    // Test payload sesuai dokumentasi API
-    const testPayload = {
-      conditions: [
-        {
-          condition_id: 1,
-          severity: "sedang",
-          notes: "Test condition dari frontend",
-        },
-      ],
-    };
-
-    console.log("🔥 Testing with payload:", testPayload);
-
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/users/medical-conditions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(testPayload),
-        }
-      );
-
-      console.log("🔥 Test response status:", response.status);
-      const data = await response.json();
-      console.log("🔥 Test response data:", data);
-
-      if (response.ok) {
-        toast.success("Test API berhasil!");
-      } else {
-        toast.error(`Test API gagal: ${data.error || data.message}`);
-      }
-    } catch (error) {
-      console.error("🔥 Test API error:", error);
-      toast.error(
-        `Test API error: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
     }
   };
 
@@ -335,9 +341,9 @@ export default function ProfilePage() {
                       <input
                         type="text"
                         name="nama"
-                        value={formData.nama}
+                        value={formData.nama || ""}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Nama lengkap Anda"
                       />
                     </div>
@@ -350,7 +356,7 @@ export default function ProfilePage() {
                         type="email"
                         value={user?.email || ""}
                         disabled
-                        className="input-field bg-gray-100 text-gray-500"
+                        className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Email tidak dapat diubah
@@ -366,7 +372,7 @@ export default function ProfilePage() {
                         name="umur"
                         value={formData.umur || ""}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="25"
                         min="1"
                         max="120"
@@ -381,7 +387,7 @@ export default function ProfilePage() {
                         name="jenis_kelamin"
                         value={formData.jenis_kelamin || ""}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="">Pilih jenis kelamin</option>
                         <option value="L">Laki-laki</option>
@@ -406,7 +412,7 @@ export default function ProfilePage() {
                         name="tinggi_badan"
                         value={formData.tinggi_badan || ""}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="170"
                         min="100"
                         max="250"
@@ -422,7 +428,7 @@ export default function ProfilePage() {
                         name="berat_badan"
                         value={formData.berat_badan || ""}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="65"
                         min="30"
                         max="300"
@@ -439,7 +445,7 @@ export default function ProfilePage() {
                         name="target_berat"
                         value={formData.target_berat || ""}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="60"
                         min="30"
                         max="300"
@@ -448,25 +454,63 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* BMI Display */}
-                  {bmi && (
-                    <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <Activity className="w-5 h-5 text-blue-600" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            BMI Anda:{" "}
-                            <span className="text-blue-600">{bmi}</span>
-                          </p>
-                          {bmiCategory && (
-                            <p className={`text-sm ${bmiCategory.color}`}>
-                              Kategori: {bmiCategory.label}
+                  {/* Health Metrics Display */}
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* BMI Display */}
+                    {bmi && (
+                      <div className="p-4 bg-blue-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <Activity className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              BMI: <span className="text-blue-600">{bmi}</span>
                             </p>
-                          )}
+                            {bmiCategory && (
+                              <p className={`text-sm ${bmiCategory.color}`}>
+                                {bmiCategory.label}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                    {/* BMR Display */}
+                    {formData.bmr && (
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <Zap className="w-5 h-5 text-green-600" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              BMR:{" "}
+                              <span className="text-green-600">
+                                {Math.round(formData.bmr)}
+                              </span>
+                            </p>
+                            <p className="text-xs text-gray-600">kalori/hari</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Target Kalori Display */}
+                    {formData.target_kalori && (
+                      <div className="p-4 bg-purple-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <Calculator className="w-5 h-5 text-purple-600" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              Target:{" "}
+                              <span className="text-purple-600">
+                                {Math.round(formData.target_kalori)}
+                              </span>
+                            </p>
+                            <p className="text-xs text-gray-600">kalori/hari</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Activity & Goals */}
@@ -482,9 +526,9 @@ export default function ProfilePage() {
                       </label>
                       <select
                         name="aktivitas"
-                        value={formData.aktivitas}
+                        value={formData.aktivitas || "moderate"}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="sedentary">
                           Sedentary (Tidak aktif)
@@ -505,15 +549,18 @@ export default function ProfilePage() {
                       </label>
                       <select
                         name="diet_goal"
-                        value={formData.diet_goal}
+                        value={formData.diet_goal || "menjaga"}
                         onChange={handleInputChange}
-                        className="input-field"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="menurunkan">
                           Menurunkan Berat Badan
                         </option>
                         <option value="menjaga">Menjaga Berat Badan</option>
-                        <option value="menambah">Menambah Berat Badan</option>
+                        <option value="menaikkan">
+                          Menambah Berat Badan
+                        </option>{" "}
+                        {/* ✅ Perbaiki dari 'menambah' ke 'menaikkan' */}
                       </select>
                     </div>
                   </div>
@@ -527,9 +574,9 @@ export default function ProfilePage() {
                   </label>
                   <textarea
                     name="alergi"
-                    value={formData.alergi}
+                    value={formData.alergi || ""}
                     onChange={handleInputChange}
-                    className="input-field"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Sebutkan alergi makanan yang Anda miliki (opsional)"
                     rows={3}
                   />
@@ -543,7 +590,7 @@ export default function ProfilePage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="btn-primary flex items-center space-x-2"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
                   >
                     {saving ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
