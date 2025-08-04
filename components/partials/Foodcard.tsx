@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useCallback, memo } from "react";
-import { Star, Heart, Zap, Utensils } from "lucide-react";
+import { Star, Heart, Zap, Utensils, Link, ExternalLink } from "lucide-react";
 import { foodService, handleApiError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Food } from "@/types";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface FoodCardProps {
   food: Food;
@@ -20,6 +21,7 @@ const FoodCard = memo(function FoodCard({
   onRatingUpdate,
   onClick,
 }: FoodCardProps) {
+  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [rating, setRating] = useState(0);
   const [isLiked, setIsLiked] = useState<boolean | null>(null);
@@ -88,6 +90,14 @@ const FoodCard = memo(function FoodCard({
       onClick();
     }
   }, [onClick]);
+
+  const handleViewDetail = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent card click
+      router.push(`/foods/${food.food_id}`);
+    },
+    [router, food.food_id]
+  );
 
   const getHealthScoreColor = useCallback((score?: number) => {
     if (!score) return "text-gray-600 bg-gray-100";
@@ -229,6 +239,17 @@ const FoodCard = memo(function FoodCard({
         {typeof food.estimated_gi === "number" && (
           <GlycemicIndex gi={food.estimated_gi} />
         )}
+
+        {/* ✅ PERBAIKAN: Detail Button yang benar */}
+        <div className="mb-3">
+          <button
+            onClick={handleViewDetail}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>Lihat Detail</span>
+          </button>
+        </div>
 
         {/* Rating Section */}
         {showRating && (

@@ -36,6 +36,8 @@ export interface MealPreferences {
 
 // ==================== FOOD TYPES ====================
 export interface Food {
+  user_liked: undefined;
+  user_rating: any;
   food_id: number;
   nama_makanan: string;
   air?: number;
@@ -172,6 +174,7 @@ export interface RecommendationHistoryItem {
 }
 
 export interface SimilarFoodsResponse {
+  similar_foods: never[];
   success: boolean;
   data: {
     target_food: {
