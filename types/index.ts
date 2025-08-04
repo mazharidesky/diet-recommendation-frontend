@@ -426,6 +426,8 @@ export interface PaginatedResponse<T> {
 }
 
 export interface FoodsResponse {
+  data: Food[];
+  total_pages: number;
   foods: Food[];
   total: number;
   pages: number;

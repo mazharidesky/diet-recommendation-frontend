@@ -281,7 +281,9 @@ const NutritionInfo = memo(function NutritionInfo({
     <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
       <div className="flex justify-between">
         <span className="text-gray-600">Kalori:</span>
-        <span className="font-medium">{food.energi || 0} kcal</span>
+        <span className="font-medium text-gray-500">
+          {food.energi || 0} kcal
+        </span>
       </div>
       <div className="flex justify-between">
         <span className="text-gray-600">Protein:</span>
