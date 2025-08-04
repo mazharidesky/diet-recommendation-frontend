@@ -131,6 +131,29 @@ export default function RecommendationsPage() {
             Makanan yang dipersonalisasi khusus untuk Anda, {user?.nama}
           </p>
         </div>
+        <div className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Makanan Favorit Button */}
+            <button
+              onClick={() => router.push("/favorites")}
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="bg-white bg-opacity-20 p-3 rounded-lg group-hover:scale-110 transition-transform duration-200">
+                  <Star className="text-orange-500 w-6 h-6" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-lg">
+                    Makanan Favorit Saya
+                  </h3>
+                  <p className="text-sm opacity-90">
+                    Lihat makanan yang sudah disukai
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
 
         {/* Method Info Card */}
         {methodInfo && (

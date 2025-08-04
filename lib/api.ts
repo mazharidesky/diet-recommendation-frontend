@@ -600,6 +600,11 @@ class FoodService {
   async getMyRatings(): Promise<RatingsResponse> {
     return this.api.getMyRatings();
   }
+
+  async deleteRatings(ratingId: number): Promise<{ message: string }> {
+    const response = await this.api.delete(`/foods/my-ratings/${ratingId}`);
+    return response;
+  }
 }
 
 class RecommendationService {
