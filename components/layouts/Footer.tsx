@@ -9,10 +9,10 @@ export default function Footer(): JSX.Element {
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-6 h-6 bg-primary-500 rounded flex items-center justify-center">
+            <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
               <Utensils className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-semibold">DietRecom</span>
+            <span className="text-lg font-semibold">Maridiet</span>
           </div>
           <p className="text-gray-400 mb-2">Sistem Rekomendasi Menu Diet</p>
           <p className="text-gray-500 text-sm">

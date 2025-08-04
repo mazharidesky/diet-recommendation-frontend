@@ -61,7 +61,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -69,13 +69,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-20">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Sistem Rekomendasi Menu Diet
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-100">
+            <p className="text-xl md:text-2xl mb-8 text-blue-100">
               Temukan makanan sehat yang tepat untuk program diet Anda
             </p>
 
@@ -85,14 +85,14 @@ export default function HomePage() {
                 <>
                   <Link
                     href="/register"
-                    className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+                    className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
                   >
                     Mulai Sekarang
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                   <Link
                     href="/foods"
-                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center"
                   >
                     <Utensils className="mr-2 w-5 h-5" />
                     Lihat Makanan
@@ -102,14 +102,14 @@ export default function HomePage() {
                 <>
                   <Link
                     href="/recommendations"
-                    className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+                    className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
                   >
                     <Star className="mr-2 w-5 h-5" />
                     Dapatkan Rekomendasi
                   </Link>
                   <Link
                     href="/meal-planning"
-                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center"
                   >
                     <Award className="mr-2 w-5 h-5" />
                     Meal Planning
@@ -121,14 +121,14 @@ export default function HomePage() {
             {/* User welcome message */}
             {isAuthenticated && user && (
               <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto">
-                <p className="text-primary-100">
+                <p className="text-blue-100">
                   Selamat datang kembali,{" "}
                   <span className="font-semibold">{user.nama}</span>!
                 </p>
                 {methodInfo && (
-                  <p className="text-sm text-primary-200 mt-1">
+                  <p className="text-sm text-blue-200 mt-1">
                     Menggunakan metode{" "}
-                    {methodInfo.data.current_method.replace("_", " ")}
+                    {methodInfo.data.current_method.replace("_", "  ")}
                     dengan {methodInfo.data.total_users} pengguna aktif
                   </p>
                 )}
@@ -218,15 +218,15 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Utensils className="w-8 h-8 text-primary-600" />
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Utensils className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-2">500+</h3>
               <p className="text-gray-600">Variasi Makanan Sehat</p>
             </div>
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-primary-600" />
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-2">
                 {methodInfo?.data.total_users || "50+"}
@@ -234,8 +234,8 @@ export default function HomePage() {
               <p className="text-gray-600">Pengguna Aktif</p>
             </div>
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-8 h-8 text-primary-600" />
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-2">
                 {methodInfo?.data.total_ratings_in_system || "1000+"}
@@ -243,8 +243,8 @@ export default function HomePage() {
               <p className="text-gray-600">Rating Makanan</p>
             </div>
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-primary-600" />
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-2">
                 AI-Powered
@@ -280,7 +280,7 @@ export default function HomePage() {
           <div className="text-center">
             <Link
               href="/foods"
-              className="bg-blue-500 hover:bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center"
             >
               Lihat Semua Makanan
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -306,10 +306,10 @@ export default function HomePage() {
               <Link
                 key={category.category_id}
                 href={`/foods?category_id=${category.category_id}`}
-                className="bg-white hover:bg-primary-50 p-6 rounded-lg text-center transition-colors group border border-gray-200 hover:border-primary-200"
+                className="bg-white hover:bg-blue-50 p-6 rounded-lg text-center transition-colors group border border-gray-200 hover:border-blue-200"
               >
-                <div className="bg-primary-100 group-hover:bg-primary-200 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Utensils className="w-6 h-6 text-primary-600" />
+                <div className="bg-blue-100 group-hover:bg-blue-200 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Utensils className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">
                   {category.category_name}
@@ -376,26 +376,26 @@ export default function HomePage() {
 
       {/* CTA Section */}
       {!isAuthenticated && (
-        <section className="py-16 bg-primary-600 text-white">
+        <section className="py-16 bg-blue-600 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold mb-4">
               Siap Memulai Diet Sehat Anda?
             </h2>
-            <p className="text-xl text-primary-100 mb-8">
+            <p className="text-xl text-blue-100 mb-8">
               Bergabunglah dengan ribuan pengguna yang sudah merasakan
               manfaatnya
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/register"
-                className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
+                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center"
               >
                 <Heart className="mr-2 w-5 h-5" />
                 Daftar Gratis Sekarang
               </Link>
               <Link
                 href="/foods"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center"
               >
                 <Utensils className="mr-2 w-5 h-5" />
                 Lihat Makanan Dulu
