@@ -27,7 +27,7 @@ const Navbar = memo(function Navbar() {
     ...(isAuthenticated
       ? [
           { name: "Rekomendasi", href: "/recommendations", icon: Star },
-          { name: "Meal Planning", href: "/meal-planning", icon: Calendar },
+          { name: "Meal Planning", href: "#", icon: Calendar },
           { name: "Profil", href: "/profile", icon: Settings },
         ]
       : []),
