@@ -15,6 +15,32 @@ interface FoodCardProps {
   onClick?: () => void;
 }
 
+// Fungsi untuk memfilter kata-kata yang tidak diinginkan HANYA UNTUK TAMPILAN
+const filterWordsForDisplay = (text: string): string => {
+  if (!text || typeof text !== "string") return text || "";
+
+  const wordsToRemove = ["mentah", "masakan"];
+
+  // Split berdasarkan koma terlebih dahulu, lalu proses setiap bagian
+  return text
+    .split(",")
+    .map((part) => {
+      // Proses setiap bagian yang dipisah koma
+      const words = part
+        .trim()
+        .split(/\s+/)
+        .filter((word) => {
+          const cleanWord = word.toLowerCase().replace(/[^\w]/g, "");
+          return !wordsToRemove.includes(cleanWord);
+        });
+
+      return words.join(" ").trim();
+    })
+    .filter((part) => part.length > 0) // Hapus bagian kosong
+    .join(", ") // Gabungkan kembali dengan koma dan spasi
+    .trim();
+};
+
 const FoodCard = memo(function FoodCard({
   food,
   showRating = true,
@@ -129,13 +155,16 @@ const FoodCard = memo(function FoodCard({
         if (!suitability) return [];
 
         if (Array.isArray(suitability)) {
-          return suitability.slice(0, 3);
+          return suitability
+            .map((item) => filterWordsForDisplay(item)) // Filter hanya untuk tampilan
+            .filter((item) => item.length > 0) // Hapus item kosong setelah filtering
+            .slice(0, 3);
         }
 
         if (typeof suitability === "string") {
           return suitability
             .split(",")
-            .map((s) => s.trim())
+            .map((s) => filterWordsForDisplay(s.trim())) // Filter hanya untuk tampilan
             .filter((s) => s.length > 0)
             .slice(0, 3);
         }
@@ -143,7 +172,10 @@ const FoodCard = memo(function FoodCard({
         if (typeof suitability === "object" && suitability !== null) {
           const values = Object.values(suitability);
           if (values.length > 0 && Array.isArray(values[0])) {
-            return values[0].slice(0, 3);
+            return values[0]
+              .map((item) => filterWordsForDisplay(item)) // Filter hanya untuk tampilan
+              .filter((item) => item.length > 0) // Hapus item kosong setelah filtering
+              .slice(0, 3);
           }
         }
 
@@ -167,6 +199,12 @@ const FoodCard = memo(function FoodCard({
 
   const dietSuitabilityList = formatDietSuitability(food.diet_suitability);
 
+  // Filter HANYA UNTUK TAMPILAN - data asli tetap utuh untuk pencarian
+  const displayFoodName = filterWordsForDisplay(food.nama_makanan);
+  const displayCategoryName = filterWordsForDisplay(
+    food.category?.category_name || "Makanan"
+  );
+
   return (
     <div
       className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden ${
@@ -178,9 +216,7 @@ const FoodCard = memo(function FoodCard({
       <div className="h-48 bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center relative">
         <div className="text-blue-600 text-center">
           <Utensils className="w-12 h-12 mx-auto mb-2" />
-          <span className="text-sm font-medium">
-            {food.category?.category_name || "Makanan"}
-          </span>
+          <span className="text-sm font-medium">{displayCategoryName}</span>
         </div>
 
         {/* Similarity Score */}
@@ -197,9 +233,9 @@ const FoodCard = memo(function FoodCard({
       </div>
 
       <div className="p-4">
-        {/* Food Name */}
+        {/* Food Name - Tampilkan versi yang sudah difilter */}
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-          {food.nama_makanan}
+          {displayFoodName}
         </h3>
 
         {/* Health Score */}
@@ -219,7 +255,7 @@ const FoodCard = memo(function FoodCard({
         {/* Nutrition Info */}
         <NutritionInfo food={food} getNutritionColor={getNutritionColor} />
 
-        {/* Diet Suitability */}
+        {/* Diet Suitability - Sudah difilter dalam formatDietSuitability */}
         {dietSuitabilityList.length > 0 && (
           <div className="mb-3">
             <div className="flex flex-wrap gap-1">
@@ -240,7 +276,7 @@ const FoodCard = memo(function FoodCard({
           <GlycemicIndex gi={food.estimated_gi} />
         )}
 
-        {/* ✅ PERBAIKAN: Detail Button yang benar */}
+        {/* Detail Button */}
         <div className="mb-3">
           <button
             onClick={handleViewDetail}

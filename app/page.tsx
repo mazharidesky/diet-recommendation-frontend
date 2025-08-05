@@ -107,13 +107,13 @@ export default function HomePage() {
                     <Star className="mr-2 w-5 h-5" />
                     Dapatkan Rekomendasi
                   </Link>
-                  <Link
+                  {/* <Link
                     href="/meal-planning"
                     className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center"
                   >
                     <Award className="mr-2 w-5 h-5" />
                     Meal Planning
-                  </Link>
+                  </Link> */}
                 </>
               )}
             </div>

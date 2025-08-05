@@ -27,7 +27,7 @@ const Navbar = memo(function Navbar() {
     ...(isAuthenticated
       ? [
           { name: "Rekomendasi", href: "/recommendations", icon: Star },
-          { name: "Meal Planning", href: "#", icon: Calendar },
+          // { name: "Meal Planning", href: "#", icon: Calendar },
           { name: "Profil", href: "/profile", icon: Settings },
         ]
       : []),
@@ -70,7 +70,7 @@ const Navbar = memo(function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:ml-10 md:flex md:space-x-8">
+            <div className="hidden md:ml-10 md:flex md:space-x-8 ">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
