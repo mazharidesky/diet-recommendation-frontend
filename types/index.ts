@@ -57,6 +57,9 @@ export interface Food {
   is_active: boolean;
   category?: FoodCategory;
   similarity_score?: number; // For similar foods
+  portion: string;
+  calories: number;
+  base_calories_per_100g: number;
 }
 
 export interface NutritionProfile {
@@ -232,149 +235,71 @@ export interface SystemStats {
 }
 
 // ==================== MEAL PLANNING TYPES ====================
+
 export interface MealPlan {
   name: string;
-  foods: MealFood[];
-  total_calories: number;
   description: string;
+  foods: Food[];
+  total_calories: number;
+  source: string;
 }
 
-export interface MealFood {
-  name: string;
-  calories: number;
-  portion: string;
+export interface PersonalizationStatus {
+  is_personalized: boolean;
+  ml_method_used: string;
+  snapshot_id: number;
+  total_recommendations_used: number;
+  breakfast_source: string;
+  lunch_source: string;
+  dinner_source: string;
 }
 
-export interface DailyMealPlan {
+export interface CompletionStatus {
+  breakfast: boolean;
+  lunch: boolean;
+  dinner: boolean;
+}
+
+export interface MealTimes {
+  breakfast: string;
+  lunch: string;
+  dinner: string;
+}
+
+export interface MealPlanResponse {
+  plan_id: number;
+  user_id: number;
+  plan_date: string;
+  approach: string;
   breakfast_plan: MealPlan;
   lunch_plan: MealPlan;
   dinner_plan: MealPlan;
   total_target_calories: number;
-  approach: MealPlanApproach;
-  completion_status?: {
-    breakfast: boolean;
-    lunch: boolean;
-    dinner: boolean;
-  };
-  completion_rate?: number;
+  actual_calories: number | null;
+  completion_rate: number;
+  completion_status: CompletionStatus;
+  meal_times: MealTimes;
+  personalization_status: PersonalizationStatus;
+  snapshot_id: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export type MealPlanApproach = "balanced" | "breakfast_heavy" | "lunch_heavy";
 export type MealType = "breakfast" | "lunch" | "dinner";
+
+export interface MealPlanCardProps {
+  mealPlan: MealPlan;
+  mealType: MealType;
+  isCompleted?: boolean;
+  onToggleComplete?: (mealType: MealType) => void | Promise<void>; // Support async
+  mealTime?: string;
+}
 
 export interface GenerateMealPlanRequest {
   date?: string;
-  approach?: MealPlanApproach;
+  approach?: "balanced" | "breakfast_heavy" | "lunch_heavy";
   force_regenerate?: boolean;
-}
-
-export interface GenerateMealPlanResponse {
-  message: string;
-  meal_plan: DailyMealPlan;
-  tips: string[];
-}
-
-export interface WeeklyMealPlan {
-  start_date: string;
-  end_date: string;
-  weekly_plans: DailyMealPlanWithDate[];
-  approach: MealPlanApproach;
-}
-
-export interface DailyMealPlanWithDate {
-  date: string;
-  day_name: string;
-  meal_plan: DailyMealPlan | null;
-  has_plan: boolean;
-}
-
-export interface MealCompletionRequest {
-  date?: string;
-  meal_type: MealType;
-  completed?: boolean;
-}
-
-export interface MealCompletionResponse {
-  message: string;
-  completion_rate: number;
-  completed_meals: number;
-  total_meals: number;
-}
-
-export interface TodayMealStatus {
-  date: string;
-  has_plan: boolean;
-  completion_status?: {
-    breakfast: boolean;
-    lunch: boolean;
-    dinner: boolean;
-  };
-  completion_rate?: number;
-  completed_meals?: number;
-  next_meal?: MealType;
-  meal_plan?: DailyMealPlan;
-  message?: string;
-}
-
-export interface WeeklyProgress {
-  start_date: string;
-  end_date: string;
-  weekly_progress: {
-    daily_progress: DailyProgress[];
-    weekly_stats: {
-      total_days: number;
-      completed_days: number;
-      completion_rate: number;
-      meal_breakdown: {
-        breakfast: number;
-        lunch: number;
-        dinner: number;
-      };
-    };
-  };
-}
-
-export interface DailyProgress {
-  date: string;
-  day_name: string;
-  has_plan: boolean;
-  completion_rate: number;
-  completion_status: {
-    breakfast: boolean;
-    lunch: boolean;
-    dinner: boolean;
-  };
-}
-
-export interface MealTimeRecommendations {
-  recommended_times: {
-    breakfast: string;
-    lunch: string;
-    dinner: string;
-  };
-  tips: string[];
-}
-
-export interface QuickMealSuggestions {
-  current_time: string;
-  suggested_meal: {
-    meal_type: MealType;
-    suggestions: string[];
-  };
-  all_suggestions: {
-    morning: {
-      meal_type: MealType;
-      suggestions: string[];
-    };
-    afternoon: {
-      meal_type: MealType;
-      suggestions: string[];
-    };
-    evening: {
-      meal_type: MealType;
-      suggestions: string[];
-    };
-  };
+  use_ml?: boolean;
 }
 
 // ==================== MEDICAL CONDITION TYPES ====================
@@ -407,6 +332,13 @@ export interface UpdateMedicalConditionsRequest {
 export interface ApiResponse<T = any> {
   success?: boolean;
   message?: string;
+  meal_plan: MealPlanResponse;
+  ml_info?: {
+    is_ml_powered: boolean;
+    method_used: string;
+    recommendations_count: number;
+  };
+  tips: string[];
   data?: T;
   error?: string;
   total?: number;
@@ -502,13 +434,6 @@ export interface FoodCardProps {
   showRating?: boolean;
   onRatingUpdate?: (foodId: number, rating: number) => void;
   onClick?: () => void;
-}
-
-export interface MealPlanCardProps {
-  mealPlan: MealPlan;
-  mealType: MealType;
-  isCompleted?: boolean;
-  onToggleComplete?: (mealType: MealType) => void;
 }
 
 export interface RecommendationCardProps {

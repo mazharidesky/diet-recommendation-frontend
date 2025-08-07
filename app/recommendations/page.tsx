@@ -288,7 +288,7 @@ export default function RecommendationsPage() {
                   {loadingRecommendations ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
-                    <Zap className="w-6 h-6" />
+                    <Zap className="w-6 h-6 text-blue-500" />
                   )}
                 </div>
                 <div className="text-left">
@@ -313,7 +313,7 @@ export default function RecommendationsPage() {
             >
               <div className="flex items-center space-x-3">
                 <div className="bg-white bg-opacity-20 p-3 rounded-lg group-hover:scale-110 transition-transform duration-200">
-                  <Star className="w-6 h-6" />
+                  <Star className="w-6 h-6 text-orange-500" />
                 </div>
                 <div className="text-left">
                   <h3 className="font-semibold text-lg">Makanan Favorit</h3>
@@ -331,7 +331,7 @@ export default function RecommendationsPage() {
             >
               <div className="flex items-center space-x-3">
                 <div className="bg-white bg-opacity-20 p-3 rounded-lg group-hover:scale-110 transition-transform duration-200">
-                  <UserCheck className="w-6 h-6" />
+                  <UserCheck className="w-6 h-6 text-purple-500" />
                 </div>
                 <div className="text-left">
                   <h3 className="font-semibold text-lg">Kelola Profil</h3>

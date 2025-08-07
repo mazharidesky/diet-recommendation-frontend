@@ -27,17 +27,13 @@ import {
   RecommendationParams,
   // Meal planning types
   GenerateMealPlanRequest,
-  GenerateMealPlanResponse,
-  WeeklyMealPlan,
-  TodayMealStatus,
-  MealCompletionRequest,
-  MealCompletionResponse,
-  WeeklyProgress,
-  MealTimeRecommendations,
-  QuickMealSuggestions,
-  MealPreferences,
-  DailyMealPlan,
+  MealPlanResponse,
   MealType,
+  MealPlan,
+  PersonalizationStatus,
+  CompletionStatus,
+  MealTimes,
+
   // Profile types
   ProfileUpdateForm,
   MedicalCondition,
@@ -307,26 +303,9 @@ class ApiClient {
 
   async generateDailyMealPlan(
     request: GenerateMealPlanRequest
-  ): Promise<GenerateMealPlanResponse> {
-    const response = await this.client.post<GenerateMealPlanResponse>(
+  ): Promise<MealPlanResponse> {
+    const response = await this.client.post<MealPlanResponse>(
       "/meal-planning/generate-plan",
-      request
-    );
-    return response.data;
-  }
-
-  async generateWeeklyMealPlan(request: {
-    start_date?: string;
-    approach?: string;
-  }): Promise<{
-    message: string;
-    start_date: string;
-    end_date: string;
-    weekly_plans: any[];
-    approach: string;
-  }> {
-    const response = await this.client.post(
-      "/meal-planning/generate-weekly-plan",
       request
     );
     return response.data;
@@ -334,32 +313,18 @@ class ApiClient {
 
   async getDailyMealPlan(date: string): Promise<{
     date: string;
-    meal_plan: DailyMealPlan;
+    meal_plan: MealPlan;
   }> {
     const response = await this.client.get(`/meal-planning/plan/${date}`);
     return response.data;
   }
 
-  async getWeeklyMealPlans(startDate: string): Promise<WeeklyMealPlan> {
-    const response = await this.client.get<WeeklyMealPlan>(
-      `/meal-planning/plans/week/${startDate}`
-    );
-    return response.data;
-  }
-
   async markMealCompleted(
-    request: MealCompletionRequest
-  ): Promise<MealCompletionResponse> {
-    const response = await this.client.post<MealCompletionResponse>(
+    request: CompletionStatus
+  ): Promise<CompletionStatus> {
+    const response = await this.client.post<CompletionStatus>(
       "/meal-planning/mark-completed",
       request
-    );
-    return response.data;
-  }
-
-  async getTodayMealStatus(): Promise<TodayMealStatus> {
-    const response = await this.client.get<TodayMealStatus>(
-      "/meal-planning/today-status"
     );
     return response.data;
   }
@@ -370,7 +335,7 @@ class ApiClient {
     mealData: any
   ): Promise<{
     message: string;
-    updated_plan: DailyMealPlan;
+    updated_plan: MealPlan;
   }> {
     const response = await this.client.put(
       `/meal-planning/plan/${date}/meal/${mealType}`,
@@ -378,44 +343,6 @@ class ApiClient {
         meal_data: mealData,
       }
     );
-    return response.data;
-  }
-
-  async getWeeklyProgress(startDate: string): Promise<WeeklyProgress> {
-    const response = await this.client.get<WeeklyProgress>(
-      `/meal-planning/progress/weekly/${startDate}`
-    );
-    return response.data;
-  }
-
-  async getMealTimeRecommendations(): Promise<MealTimeRecommendations> {
-    const response = await this.client.get<MealTimeRecommendations>(
-      "/meal-planning/meal-times"
-    );
-    return response.data;
-  }
-
-  async getQuickMealSuggestions(): Promise<QuickMealSuggestions> {
-    const response = await this.client.get<QuickMealSuggestions>(
-      "/meal-planning/quick-suggestions"
-    );
-    return response.data;
-  }
-
-  async getMealPreferences(): Promise<{ preferences: MealPreferences }> {
-    const response = await this.client.get<{ preferences: MealPreferences }>(
-      "/meal-planning/preferences"
-    );
-    return response.data;
-  }
-
-  async updateMealPreferences(preferences: MealPreferences): Promise<{
-    message: string;
-    preferences: MealPreferences;
-  }> {
-    const response = await this.client.put("/meal-planning/preferences", {
-      preferences,
-    });
     return response.data;
   }
 
@@ -673,59 +600,305 @@ class RecommendationService {
 class MealPlanningService {
   constructor(private api: ApiClient) {}
 
-  async generateDailyPlan(
-    request: GenerateMealPlanRequest
-  ): Promise<GenerateMealPlanResponse> {
-    return this.api.generateDailyMealPlan(request);
+  // ==================== MAIN MEAL PLANNING ENDPOINTS ====================
+
+  async generateDailyPlan(request: GenerateMealPlanRequest): Promise<{
+    message: string;
+    meal_plan: MealPlanResponse;
+    ml_info?: {
+      is_ml_powered: boolean;
+      method_used: string;
+      recommendations_count: number;
+    };
+    tips: string[];
+  }> {
+    const response = await this.api.post(
+      "/meal-planning/generate-plan",
+      request
+    );
+    return response;
   }
 
-  async generateWeeklyPlan(request: {
-    start_date?: string;
-    approach?: string;
-  }) {
-    return this.api.generateWeeklyMealPlan(request);
+  async generateWeeklyPlan(
+    startDate: string,
+    approach: "balanced" | "breakfast_heavy" | "lunch_heavy" = "balanced",
+    useML: boolean = true
+  ): Promise<{
+    message: string;
+    start_date: string;
+    end_date: string;
+    weekly_plans: Array<{
+      date: string;
+      day_name: string;
+      meal_plan: MealPlanResponse;
+      ml_method: string;
+    }>;
+    approach: string;
+    ml_summary: {
+      ml_enabled: boolean;
+      methods_used: string[];
+      ml_powered_days: number;
+    };
+  }> {
+    const response = await this.api.post(
+      "/meal-planning/generate-weekly-plan",
+      {
+        start_date: startDate,
+        approach,
+        use_ml: useML,
+      }
+    );
+    return response;
   }
 
-  async getDailyPlan(date: string) {
-    return this.api.getDailyMealPlan(date);
+  // ==================== ML-POWERED MEAL PLANNING ====================
+
+  async generateMLMealPlan(request: GenerateMealPlanRequest): Promise<{
+    message: string;
+    meal_plan: MealPlanResponse;
+    ml_info: {
+      method_used: string;
+      is_ml_powered: boolean;
+      recommendations_count: number;
+    };
+    tips: string[];
+  }> {
+    const response = await this.api.post(
+      "/meal-planning/generate-ml-meal-plan",
+      request
+    );
+    return response;
   }
 
-  async getWeeklyPlans(startDate: string): Promise<WeeklyMealPlan> {
-    return this.api.getWeeklyMealPlans(startDate);
+  async generatePersonalizedPlan(
+    request: GenerateMealPlanRequest & {
+      recommendations?: any[];
+    }
+  ): Promise<{
+    message: string;
+    meal_plan: MealPlanResponse;
+    tips: string[];
+    personalization_info: {
+      is_personalized: boolean;
+      recommendations_used: number;
+    };
+  }> {
+    const response = await this.api.post(
+      "/meal-planning/generate-personalized-plan",
+      request
+    );
+    return response;
   }
+
+  // ==================== ML INTEGRATION & PREVIEW ====================
+
+  async previewMLRecommendations(count: number = 20): Promise<{
+    recommendations: any[];
+    method_used: string;
+    total_count: number;
+    category_analysis: any;
+    meal_planning_suitability: {
+      breakfast_suitable: number;
+      lunch_suitable: number;
+      dinner_suitable: number;
+    };
+  }> {
+    const response = await this.api.get(
+      "/meal-planning/ml-recommendations/preview",
+      {
+        count,
+      }
+    );
+    return response;
+  }
+
+  async checkMLRecommendationQuality(): Promise<{
+    system_health: any;
+    user_profile: {
+      user_id: number;
+      rating_count: number;
+      positive_ratings: number;
+      satisfaction_rate: number;
+      has_allergies: boolean;
+      allergies: string | null;
+    };
+    readiness_assessment: {
+      ready_for_ml: boolean;
+      recommended_method: string;
+      reasons: string[];
+    };
+    system_stats: any;
+    meal_planning_integration: {
+      ml_enabled: boolean;
+      allergy_filtering: boolean;
+      template_fallback: boolean;
+      supports_fresh_recommendations: boolean;
+    };
+  }> {
+    const response = await this.api.get(
+      "/meal-planning/ml-recommendations/quality"
+    );
+    return response;
+  }
+
+  // ==================== MEAL MODIFICATION ====================
+
+  async regenerateMeal(
+    planId: number,
+    mealType: MealType,
+    useML: boolean = true,
+    recommendations?: any[]
+  ): Promise<{
+    message: string;
+    method_used: string;
+    updated_plan: MealPlanResponse;
+  }> {
+    const response = await this.api.post("/meal-planning/regenerate-meal", {
+      plan_id: planId,
+      meal_type: mealType,
+      use_ml: useML,
+      recommendations,
+    });
+    return response;
+  }
+
+  async regenerateMealWithML(
+    planId: number,
+    mealType: MealType
+  ): Promise<{
+    message: string;
+    updated_plan: MealPlanResponse;
+  }> {
+    const response = await this.api.post("/meal-planning/regenerate-meal-ml", {
+      plan_id: planId,
+      meal_type: mealType,
+    });
+    return response;
+  }
+
+  async updateSpecificMeal(
+    date: string,
+    mealType: MealType,
+    mealData: any
+  ): Promise<{
+    message: string;
+    updated_plan: MealPlanResponse;
+  }> {
+    const response = await this.api.put(
+      `/meal-planning/plan/${date}/meal/${mealType}`,
+      { meal_data: mealData }
+    );
+    return response;
+  }
+
+  // ==================== MEAL PLAN RETRIEVAL ====================
+
+  async getDailyPlan(date: string): Promise<{
+    date: string;
+    meal_plan: MealPlanResponse;
+  } | null> {
+    try {
+      const response = await this.api.get(`/meal-planning/plan/${date}`);
+      return response;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async getWeeklyPlans(startDate: string): Promise<{
+    start_date: string;
+    end_date: string;
+    weekly_plans: Array<{
+      date: string;
+      day_name: string;
+      meal_plan: MealPlanResponse | null;
+      has_plan: boolean;
+      is_ml_powered: boolean;
+    }>;
+    ml_summary: {
+      ml_powered_days: number;
+      template_days: number;
+    };
+  }> {
+    const response = await this.api.get(
+      `/meal-planning/plans/week/${startDate}`
+    );
+    return response;
+  }
+
+  async getTodayStatus(): Promise<{
+    date: string;
+    has_plan: boolean;
+    completion_status?: {
+      breakfast: boolean;
+      lunch: boolean;
+      dinner: boolean;
+    };
+    completion_rate?: number;
+    completed_meals?: number;
+    next_meal?: string | null;
+    personalization?: {
+      is_personalized: boolean;
+      ml_method_used: string;
+      snapshot_id: number;
+      personalization_status: any;
+    };
+    meal_plan?: {
+      breakfast: any;
+      lunch: any;
+      dinner: any;
+    };
+    meal_times?: {
+      breakfast: string;
+      lunch: string;
+      dinner: string;
+    };
+    message?: string;
+    suggestion?: string;
+  }> {
+    const response = await this.api.get("/meal-planning/today-status");
+    return response;
+  }
+
+  // ==================== PROGRESS TRACKING ====================
 
   async markMealCompleted(
-    request: MealCompletionRequest
-  ): Promise<MealCompletionResponse> {
-    return this.api.markMealCompleted(request);
+    date: string,
+    mealType: MealType,
+    completed: boolean = true
+  ): Promise<{
+    message: string;
+    completion_status: {
+      breakfast: boolean;
+      lunch: boolean;
+      dinner: boolean;
+    };
+    completion_rate: number;
+    completed_meals: number;
+  }> {
+    const response = await this.api.post("/meal-planning/mark-completed", {
+      date,
+      meal_type: mealType,
+      completed,
+    });
+    return response;
   }
 
-  async getTodayStatus(): Promise<TodayMealStatus> {
-    return this.api.getTodayMealStatus();
+  // ==================== LEGACY METHODS (untuk backward compatibility) ====================
+
+  async generateDailyMealPlan(request: GenerateMealPlanRequest) {
+    return this.generateDailyPlan(request);
+  }
+
+  async getDailyMealPlan(date: string) {
+    return this.getDailyPlan(date);
   }
 
   async updateMeal(date: string, mealType: MealType, mealData: any) {
-    return this.api.updateSpecificMeal(date, mealType, mealData);
-  }
-
-  async getWeeklyProgress(startDate: string): Promise<WeeklyProgress> {
-    return this.api.getWeeklyProgress(startDate);
-  }
-
-  async getMealTimes(): Promise<MealTimeRecommendations> {
-    return this.api.getMealTimeRecommendations();
-  }
-
-  async getQuickSuggestions(): Promise<QuickMealSuggestions> {
-    return this.api.getQuickMealSuggestions();
-  }
-
-  async getPreferences(): Promise<{ preferences: MealPreferences }> {
-    return this.api.getMealPreferences();
-  }
-
-  async updatePreferences(preferences: MealPreferences) {
-    return this.api.updateMealPreferences(preferences);
+    return this.updateSpecificMeal(date, mealType, mealData);
   }
 }
 
