@@ -39,6 +39,7 @@ export interface Food {
   user_liked: undefined;
   user_rating: any;
   food_id: number;
+  name?: string;
   nama_makanan: string;
   air?: number;
   energi: number;

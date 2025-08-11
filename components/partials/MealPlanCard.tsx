@@ -136,7 +136,7 @@ const MealPlanCard = ({
                 <ChefHat className="w-4 h-4 text-gray-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-medium text-gray-900 block truncate">
-                    {food.nama_makanan}
+                    {food.nama_makanan || food.name}
                   </span>
                   <span className="text-xs text-gray-500">
                     {food.portion} • {food.base_calories_per_100g} kcal/100g
@@ -159,7 +159,7 @@ const MealPlanCard = ({
           <span className="text-sm font-medium text-gray-700">
             Total Kalori:
           </span>
-          <span className="text-xl font-bold text-primary-600">
+          <span className="text-xl text-gray-500 font-bold text-primary-600">
             {mealPlan.total_calories} kcal
           </span>
         </div>
