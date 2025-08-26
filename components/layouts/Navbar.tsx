@@ -244,7 +244,9 @@ const AuthenticatedDesktopMenu = memo(function AuthenticatedDesktopMenu({
             className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors duration-200"
           >
             <Settings className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium">Profil Saya</span>
+            <span className="text-sm font-medium text-gray-500">
+              Profil Saya
+            </span>
           </Link>
 
           <button

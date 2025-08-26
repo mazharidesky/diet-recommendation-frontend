@@ -192,7 +192,7 @@ export default function FoodDetailPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 mt-16">
           <button
             onClick={() => router.back()}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
@@ -260,7 +260,7 @@ export default function FoodDetailPage() {
                     </div>
 
                     {/* Like/Dislike */}
-                    <div className="flex items-center space-x-4">
+                    {/* <div className="flex items-center space-x-4">
                       <button
                         onClick={() => handleLike(true)}
                         disabled={submittingRating}
@@ -286,7 +286,7 @@ export default function FoodDetailPage() {
                         <ThumbsDown className="w-4 h-4" />
                         <span>Tidak Suka</span>
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 )}
               </div>
