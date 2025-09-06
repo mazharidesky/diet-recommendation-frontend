@@ -52,7 +52,8 @@ class ApiClient {
 
   constructor() {
     this.baseURL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      process.env.NEXT_PUBLIC_API_URL ||
+      "https://diet-recommendation.fasterstronger.site/api";
 
     this.client = axios.create({
       baseURL: this.baseURL,
@@ -916,14 +917,17 @@ const debugProfileUpdate = async () => {
   console.log("🔍 Testing minimal data:", minimalData);
 
   try {
-    const response = await fetch("http://localhost:5000/api/users/profile", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(minimalData),
-    });
+    const response = await fetch(
+      "https://diet-recommendation.fasterstronger.site/api/users/profile",
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(minimalData),
+      }
+    );
 
     console.log("✅ Response status:", response.status);
     const data = await response.json();
@@ -956,14 +960,17 @@ const testFullData = async () => {
   console.log("🔍 Testing full data with zeros:", fullData);
 
   try {
-    const response = await fetch("http://localhost:5000/api/users/profile", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(fullData),
-    });
+    const response = await fetch(
+      "https://diet-recommendation.fasterstronger.site/api/users/profile",
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fullData),
+      }
+    );
 
     console.log("✅ Response status:", response.status);
     const data = await response.json();
