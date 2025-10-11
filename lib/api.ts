@@ -53,8 +53,8 @@ class ApiClient {
   constructor() {
     this.baseURL =
       process.env.NEXT_PUBLIC_API_URL ||
-      //  "https://diet-recommendation.fasterstronger.site/api";
-      "http://localhost:5000/api";
+      "https://diet-recommendation.fasterstronger.site/api";
+    // "http://localhost:5000/api";
 
     this.client = axios.create({
       baseURL: this.baseURL,
