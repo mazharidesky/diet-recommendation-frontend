@@ -53,7 +53,8 @@ class ApiClient {
   constructor() {
     this.baseURL =
       process.env.NEXT_PUBLIC_API_URL ||
-      "https://diet-recommendation.fasterstronger.site/api";
+      //  "https://diet-recommendation.fasterstronger.site/api";
+      "http://localhost:5000/api";
 
     this.client = axios.create({
       baseURL: this.baseURL,
@@ -918,7 +919,8 @@ const debugProfileUpdate = async () => {
 
   try {
     const response = await fetch(
-      "https://diet-recommendation.fasterstronger.site/api/users/profile",
+      //  "https://diet-recommendation.fasterstronger.site/api/users/profile",
+      "http://localhost:5000/api/users/profile",
       {
         method: "PUT",
         headers: {
@@ -962,6 +964,7 @@ const testFullData = async () => {
   try {
     const response = await fetch(
       "https://diet-recommendation.fasterstronger.site/api/users/profile",
+      // "http://localhost:5000/api/users/profile",
       {
         method: "PUT",
         headers: {

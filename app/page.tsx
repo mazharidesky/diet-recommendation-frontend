@@ -122,14 +122,14 @@ export default function HomePage() {
             {isAuthenticated && user && (
               <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto">
                 <p className="text-blue-100">
-                  Selamat datang kembali,{" "}
+                  Selamat datang{" "}
                   <span className="font-semibold">{user.nama}</span>!
                 </p>
                 {methodInfo && (
                   <p className="text-sm text-blue-200 mt-1">
                     Menggunakan metode{" "}
-                    {methodInfo.data.current_method.replace("_", "  ")}
-                    dengan {methodInfo.data.total_users} pengguna aktif
+                    {methodInfo.data.current_method.replace("_", " ")} dengan{" "}
+                    {methodInfo.data.total_users} pengguna aktif
                   </p>
                 )}
               </div>

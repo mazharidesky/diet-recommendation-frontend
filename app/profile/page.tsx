@@ -343,7 +343,7 @@ export default function ProfilePage() {
                         name="nama"
                         value={formData.nama || ""}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Nama lengkap Anda"
                       />
                     </div>
@@ -356,7 +356,7 @@ export default function ProfilePage() {
                         type="email"
                         value={user?.email || ""}
                         disabled
-                        className="w-full p-3 border  border-gray-300 rounded-lg bg-gray-100 text-gray-500"
+                        className="w-full p-3 border  border-gray-300 rounded-lg bg-gray-100 text-gray-700"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Email tidak dapat diubah
@@ -372,7 +372,7 @@ export default function ProfilePage() {
                         name="umur"
                         value={formData.umur || ""}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="25"
                         min="1"
                         max="120"
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                         name="jenis_kelamin"
                         value={formData.jenis_kelamin || ""}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="">Pilih jenis kelamin</option>
                         <option value="L">Laki-laki</option>
@@ -412,7 +412,7 @@ export default function ProfilePage() {
                         name="tinggi_badan"
                         value={formData.tinggi_badan || ""}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="170"
                         min="100"
                         max="250"
@@ -428,7 +428,7 @@ export default function ProfilePage() {
                         name="berat_badan"
                         value={formData.berat_badan || ""}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="65"
                         min="30"
                         max="300"
@@ -445,7 +445,7 @@ export default function ProfilePage() {
                         name="target_berat"
                         value={formData.target_berat || ""}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="60"
                         min="30"
                         max="300"
@@ -528,7 +528,7 @@ export default function ProfilePage() {
                         name="aktivitas"
                         value={formData.aktivitas || "moderate"}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="sedentary">
                           Sedentary (Tidak aktif)
@@ -551,7 +551,7 @@ export default function ProfilePage() {
                         name="diet_goal"
                         value={formData.diet_goal || "menjaga"}
                         onChange={handleInputChange}
-                        className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="menurunkan">
                           Menurunkan Berat Badan
@@ -576,7 +576,7 @@ export default function ProfilePage() {
                     name="alergi"
                     value={formData.alergi || ""}
                     onChange={handleInputChange}
-                    className="w-full p-3 border text-gray-400 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Sebutkan alergi makanan yang Anda miliki (opsional)"
                     rows={3}
                   />

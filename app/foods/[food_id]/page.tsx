@@ -361,19 +361,27 @@ export default function FoodDetailPage() {
             <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
               <div className="flex justify-between py-2 border-b border-gray-100">
                 <span className="text-gray-600">Serat</span>
-                <span className="font-medium">{food.serat || 0}g</span>
+                <span className="font-medium text-gray-400">
+                  {food.serat || 0}g
+                </span>
               </div>
               <div className="flex justify-between py-2 border-b border-gray-100">
                 <span className="text-gray-600">Air</span>
-                <span className="font-medium">{food.air || 0}g</span>
+                <span className="font-medium text-gray-400">
+                  {food.air || 0}g
+                </span>
               </div>
               <div className="flex justify-between py-2 border-b border-gray-100">
                 <span className="text-gray-600">Natrium</span>
-                <span className="font-medium">{food.natrium || 0}mg</span>
+                <span className="font-medium text-gray-400">
+                  {food.natrium || 0}mg
+                </span>
               </div>
               <div className="flex justify-between py-2 border-b border-gray-100">
                 <span className="text-gray-600">Kalium</span>
-                <span className="font-medium">{food.kalium || 0}mg</span>
+                <span className="font-medium text-gray-400">
+                  {food.kalium || 0}mg
+                </span>
               </div>
             </div>
           </div>

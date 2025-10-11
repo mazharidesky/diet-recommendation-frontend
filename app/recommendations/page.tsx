@@ -151,13 +151,13 @@ export default function RecommendationsPage() {
   const getMethodIcon = (method: string) => {
     switch (method) {
       case "content_based":
-        return <Brain className="w-5 h-5" />;
+        return <Brain className="text-black w-5 h-5" />;
       case "collaborative":
-        return <Users className="w-5 h-5" />;
+        return <Users className="text-blackw-5 h-5" />;
       case "hybrid":
-        return <Zap className="w-5 h-5" />;
+        return <Zap className="text-black w-5 h-5" />;
       default:
-        return <Star className="w-5 h-5" />;
+        return <Star className="text-black w-5 h-5" />;
     }
   };
 
@@ -379,7 +379,7 @@ export default function RecommendationsPage() {
               <div className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex items-center space-x-2 mb-1">
                   <Star className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium">Rating Anda</span>
+                  <span className="font-medium text-gray-700">Rating Anda</span>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">
                   {methodInfo.data.user_ratings_count}
@@ -388,7 +388,9 @@ export default function RecommendationsPage() {
               <div className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex items-center space-x-2 mb-1">
                   <Users className="w-4 h-4 text-green-600" />
-                  <span className="font-medium">Total Pengguna</span>
+                  <span className="font-medium text-gray-700">
+                    Total Pengguna
+                  </span>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">
                   {methodInfo.data.total_users}
@@ -397,7 +399,9 @@ export default function RecommendationsPage() {
               <div className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex items-center space-x-2 mb-1">
                   <TrendingUp className="w-4 h-4 text-purple-600" />
-                  <span className="font-medium">Collaborative</span>
+                  <span className="font-medium text-gray-700">
+                    Collaborative
+                  </span>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">
                   {methodInfo.data.collaborative_available ? "Aktif" : "Tidak"}
