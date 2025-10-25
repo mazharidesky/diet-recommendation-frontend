@@ -434,6 +434,20 @@ export default function Register() {
             )}
           </form>
         </div>
+        <div className="text-center">
+          <p className="text-gray-600">
+            Sudah punya akun?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-blue-600 hover:text-purple-600 transition-colors duration-300 group"
+            >
+              Masuk sekarang
+              <span className="inline-block transform group-hover:translate-x-1 transition-transform duration-300 ml-1">
+                →
+              </span>
+            </Link>
+          </p>
+        </div>
 
         {/* Benefits Preview - Only on Step 1 */}
         {step === 1 && (
