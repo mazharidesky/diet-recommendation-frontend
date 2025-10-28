@@ -195,7 +195,7 @@ const MealPlanningPage = () => {
         {/* Header */}
         <div className="text-center mb-8 mt-16">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Meal Planning
+            Rencana Menu
           </h1>
           <p className="text-gray-600">
             Rencanakan makanan harian Anda dengan rekomendasi AI yang

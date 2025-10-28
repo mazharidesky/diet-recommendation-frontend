@@ -147,7 +147,7 @@ export default function Login() {
                 htmlFor="email"
                 className="block text-sm font-semibold text-gray-700 mb-2"
               >
-                Email Address
+                Email
               </label>
               <div className="relative">
                 <input

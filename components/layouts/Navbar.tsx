@@ -39,7 +39,7 @@ const Navbar = memo(function Navbar() {
     ...(isAuthenticated
       ? [
           { name: "Rekomendasi", href: "/recommendations", icon: Star },
-          { name: "Meal Planning", href: "/mealplanning", icon: Calendar },
+          { name: "Rencana Menu", href: "/mealplanning", icon: Calendar },
         ]
       : []),
   ];
@@ -270,7 +270,7 @@ const UnauthenticatedDesktopMenu = memo(function UnauthenticatedDesktopMenu() {
         href="/login"
         className="px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
       >
-        Login
+        Masuk
       </Link>
       <Link
         href="/register"
@@ -278,7 +278,7 @@ const UnauthenticatedDesktopMenu = memo(function UnauthenticatedDesktopMenu() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <span className="relative z-10">Register</span>
+        <span className="relative z-10">Daftar</span>
       </Link>
     </div>
   );
