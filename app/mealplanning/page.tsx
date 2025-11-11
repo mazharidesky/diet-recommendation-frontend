@@ -205,7 +205,7 @@ const MealPlanningPage = () => {
 
         {/* Controls */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             {/* Date Picker */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -238,7 +238,7 @@ const MealPlanningPage = () => {
             </div>
 
             {/* ML Toggle */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Sparkles className="w-4 h-4 inline mr-1" />
                 AI Personalisasi
@@ -255,7 +255,7 @@ const MealPlanningPage = () => {
                   Gunakan AI
                 </label>
               </div>
-            </div>
+            </div> */}
 
             {/* Action Buttons */}
             <div className="flex space-x-2">
@@ -306,7 +306,7 @@ const MealPlanningPage = () => {
         {!loading && mealPlan && (
           <>
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {/* Total Calories */}
               <div className="bg-white rounded-lg p-4 shadow-sm border">
                 <div className="flex items-center space-x-2 mb-1">
@@ -322,7 +322,7 @@ const MealPlanningPage = () => {
               </div>
 
               {/* Completion Rate */}
-              <div className="bg-white rounded-lg p-4 shadow-sm border">
+              {/* <div className="bg-white rounded-lg p-4 shadow-sm border">
                 <div className="flex items-center space-x-2 mb-1">
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                   <span className="text-sm font-medium text-gray-700">
@@ -333,7 +333,7 @@ const MealPlanningPage = () => {
                   {completionStats.completed}/{completionStats.total}
                 </p>
                 <p className="text-xs text-gray-500">makanan selesai</p>
-              </div>
+              </div> */}
 
               {/* Approach */}
               <div className="bg-white rounded-lg p-4 shadow-sm border">

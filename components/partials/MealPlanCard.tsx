@@ -97,7 +97,7 @@ const MealPlanCard = ({
             </div>
           </div>
 
-          <button
+          {/* <button
             onClick={handleToggleComplete}
             className={`p-2 rounded-full transition-colors ${
               completed
@@ -107,7 +107,7 @@ const MealPlanCard = ({
             title={completed ? "Tandai belum selesai" : "Tandai selesai"}
           >
             <Check className="w-5 h-5" />
-          </button>
+          </button> */}
         </div>
 
         {/* Meal Time */}
