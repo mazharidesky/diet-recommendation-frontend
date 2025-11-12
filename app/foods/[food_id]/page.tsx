@@ -258,35 +258,6 @@ export default function FoodDetailPage() {
                         </span>
                       )}
                     </div>
-
-                    {/* Like/Dislike */}
-                    {/* <div className="flex items-center space-x-4">
-                      <button
-                        onClick={() => handleLike(true)}
-                        disabled={submittingRating}
-                        className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all disabled:opacity-50 ${
-                          isLiked === true
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                        }`}
-                      >
-                        <ThumbsUp className="w-4 h-4" />
-                        <span>Suka</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleLike(false)}
-                        disabled={submittingRating}
-                        className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all disabled:opacity-50 ${
-                          isLiked === false
-                            ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
-                        }`}
-                      >
-                        <ThumbsDown className="w-4 h-4" />
-                        <span>Tidak Suka</span>
-                      </button>
-                    </div> */}
                   </div>
                 )}
               </div>

@@ -31,7 +31,6 @@ export default function Login() {
     setMounted(true);
   }, []);
 
-  // Redirect jika sudah authenticated
   useEffect(() => {
     if (isAuthenticated) {
       const redirectTo = searchParams.get("redirect") || "/";
@@ -39,7 +38,6 @@ export default function Login() {
     }
   }, [isAuthenticated, router, searchParams]);
 
-  // Jangan render jika sudah authenticated
   if (isAuthenticated) {
     return null;
   }
@@ -49,7 +47,6 @@ export default function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error saat user mulai typing
     if (error) setError("");
   };
 
@@ -88,14 +85,11 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Gradient Orbs */}
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-400/15 to-pink-400/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
 
-        {/* Grid Pattern */}
         <div className="absolute inset-0 opacity-[0.02]">
           <div
             className="w-full h-full"
@@ -108,16 +102,13 @@ export default function Login() {
       </div>
 
       <div className="max-w-md w-full space-y-8 mt-16 relative z-10">
-        {/* Header Card */}
         <div className="text-center animate-in slide-in-from-top duration-1000">
           <div className="relative mb-8">
-            {/* Logo Container */}
             <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center transform hover:scale-110 transition-all duration-500 hover:rotate-6 group">
               <Utensils className="h-10 w-10 text-white group-hover:scale-110 transition-transform duration-300" />
               <div className="absolute -inset-2 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
             </div>
 
-            {/* Sparkles */}
             <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 animate-pulse" />
             <Sparkles className="absolute -bottom-2 -left-2 w-4 h-4 text-purple-400 animate-pulse delay-1000" />
           </div>
@@ -131,7 +122,6 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Login Card */}
         <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 p-8 space-y-6 animate-in slide-in-from-bottom duration-1000 delay-300">
           {error && (
             <div className="bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm flex items-center space-x-2 animate-in slide-in-from-top duration-500">
@@ -200,11 +190,11 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit*/}
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center items-center py-4 px-6 border border-transparent text-sm font-semibold rounded-2xl text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25"
+              className="group relative w-full flex justify-center items-center py-4 px-6 border border-transparent text-sm font-semibold rounded-2xl text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 cursor-pointer focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative flex items-center space-x-2">
@@ -261,7 +251,7 @@ export default function Login() {
           ].map((feature, index) => (
             <div
               key={index}
-              className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/30 hover:bg-white/80 transition-all duration-300 transform hover:scale-105"
+              className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center cursor-pointer border border-white/30 hover:bg-white/80 transition-all duration-300 transform hover:scale-105"
             >
               <div className="text-2xl mb-2">{feature.icon}</div>
               <div className="text-xs font-semibold text-gray-700">

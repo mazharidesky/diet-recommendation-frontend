@@ -441,20 +441,20 @@ class AuthService {
   constructor(private api: ApiClient) {}
 
   async login(credentials: LoginForm): Promise<LoginResponse> {
-    console.log("🔥 AuthService.login called with:", {
-      email: credentials.email,
-    });
+    // console.log("🔥 AuthService.login called with:", {
+    //   email: credentials.email,
+    // });
 
     try {
       const response = await this.api.login(credentials);
-      console.log("🔥 API response:", response);
+      // console.log("🔥 API response:", response);
 
-      // PENTING: Simpan token setelah login berhasil
+      // Token
       if (response.token) {
-        console.log(
-          "🔥 Storing token:",
-          response.token.substring(0, 20) + "..."
-        );
+        // console.log(
+        //   "🔥 Storing token:",
+        //   response.token.substring(0, 20) + "..."
+        // );
         this.api.setAuthToken(response.token);
       }
 

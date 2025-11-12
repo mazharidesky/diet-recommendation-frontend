@@ -58,18 +58,15 @@ export default function FoodsPage() {
       const response = await foodService.getFoods(params);
       const foodsData = response.foods || response.data || [];
 
-      // Auto-calculate pagination if not provided by backend
+      // Pagination handling
       if (response.total_pages && response.total) {
         setTotalPages(response.total_pages);
         setTotalItems(response.total);
       } else {
-        // Fallback: estimate based on received data
         setTotalItems(foodsData.length);
         if (foodsData.length === itemsPerPage) {
-          // Assume there might be more pages
           setTotalPages(currentPage + 1);
         } else {
-          // This is likely the last page
           setTotalPages(currentPage);
         }
       }
@@ -99,15 +96,12 @@ export default function FoodsPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top when changing page
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const generatePageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
-
-    // Handle case where we don't know exact total pages
     const displayPages = Math.max(totalPages, currentPage);
 
     if (displayPages <= maxVisiblePages) {
@@ -138,7 +132,6 @@ export default function FoodsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-8 mt-16">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Katalog Makanan Diet
@@ -152,7 +145,6 @@ export default function FoodsPage() {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <form onSubmit={handleSearch} className="mb-6">
             <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search Input */}
               <div className="flex-1 relative">
                 <input
                   type="text"
@@ -181,7 +173,6 @@ export default function FoodsPage() {
                 ))}
               </select>
 
-              {/* Search Button */}
               <button
                 type="submit"
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all flex items-center justify-center gap-2 min-w-fit"
@@ -192,7 +183,6 @@ export default function FoodsPage() {
             </div>
           </form>
 
-          {/* Active Filters */}
           {(selectedCategory || searchTerm) && (
             <div className="flex flex-wrap gap-3">
               {searchTerm && (
@@ -227,7 +217,6 @@ export default function FoodsPage() {
           )}
         </div>
 
-        {/* Results */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -255,7 +244,6 @@ export default function FoodsPage() {
           </div>
         ) : (
           <>
-            {/* Results Info */}
             <div className="mb-6 flex justify-between items-center">
               <p className="text-gray-600">
                 Menampilkan {foods.length} makanan pada halaman {currentPage}
@@ -268,7 +256,6 @@ export default function FoodsPage() {
               )}
             </div>
 
-            {/* Food Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
               {foods.map((food) => (
                 <FoodCard
@@ -283,7 +270,6 @@ export default function FoodsPage() {
             {/* Pagination */}
             {(totalPages > 1 || foods.length === itemsPerPage) && (
               <div className="flex justify-center items-center space-x-2">
-                {/* Previous Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
@@ -297,7 +283,6 @@ export default function FoodsPage() {
                   Sebelumnya
                 </button>
 
-                {/* Page Numbers */}
                 <div className="flex space-x-1">
                   {generatePageNumbers().map((page, index) => (
                     <button
@@ -325,7 +310,6 @@ export default function FoodsPage() {
                   ))}
                 </div>
 
-                {/* Next Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={foods.length < itemsPerPage}

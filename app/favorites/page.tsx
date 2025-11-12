@@ -7,12 +7,10 @@ import { foodService } from "@/lib/api";
 import { UserRating } from "@/types";
 import {
   Star,
-  Heart,
   ThumbsUp,
   Trash2,
   Loader2,
   ArrowLeft,
-  TrendingUp,
   Award,
   Filter,
   Search,
@@ -48,7 +46,6 @@ export default function FavoritesPage() {
     setLoading(true);
     try {
       const response = await foodService.getMyRatings();
-      // Filter hanya makanan yang disukai (rating >= 4 atau is_liked = true)
       const favorites = response.ratings.filter(
         (rating) =>
           (typeof rating.rating === "number" && rating.rating >= 3.0) ||
@@ -65,8 +62,6 @@ export default function FavoritesPage() {
 
   const filterAndSortRatings = () => {
     let filtered = [...userRatings];
-
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(
         (rating) =>
@@ -99,7 +94,6 @@ export default function FavoritesPage() {
         );
         break;
       case "recent":
-        // Assuming there's a timestamp, otherwise keep current order
         break;
     }
 
@@ -139,9 +133,8 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
             <button
@@ -195,17 +188,16 @@ export default function FavoritesPage() {
           </div>
         ) : (
           <>
-            {/* Search and Filter Bar */}
+            {/* pencarian dan filter section */}
             <div className="bg-white rounded-xl shadow-md p-6 mb-8">
               <div className="flex flex-col lg:flex-row gap-4">
-                {/* Search Input */}
-                <div className="flex-1 relative">
+                <div className="flex-1 relative ">
                   <input
                     type="text"
                     placeholder="Cari makanan favorit..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-10 py-3 border text-gray-500 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   {searchTerm && (
@@ -217,21 +209,17 @@ export default function FavoritesPage() {
                     </button>
                   )}
                 </div>
-
-                {/* Sort Dropdown */}
                 <select
                   value={sortBy}
                   onChange={(e) =>
                     setSortBy(e.target.value as "rating" | "name" | "recent")
                   }
-                  className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                  className="px-4 py-3 border border-gray-200 text-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 >
                   <option value="rating">Urutkan: Rating Tertinggi</option>
                   <option value="name">Urutkan: Nama A-Z</option>
                   <option value="recent">Urutkan: Terbaru</option>
                 </select>
-
-                {/* Filter Dropdown */}
                 <select
                   value={filterBy}
                   onChange={(e) =>
@@ -239,7 +227,7 @@ export default function FavoritesPage() {
                       e.target.value as "all" | "liked" | "high_rated"
                     )
                   }
-                  className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                  className="px-4 py-3 border text-gray-500 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 >
                   <option value="all">Semua Favorit</option>
                   <option value="liked">Hanya yang Di-Like</option>
@@ -247,8 +235,6 @@ export default function FavoritesPage() {
                 </select>
               </div>
             </div>
-
-            {/* Results Summary */}
             <div className="mb-6 flex justify-between items-center">
               <p className="text-gray-600">
                 Menampilkan {filteredRatings.length} dari {userRatings.length}{" "}
@@ -256,8 +242,6 @@ export default function FavoritesPage() {
                 {searchTerm && ` untuk "${searchTerm}"`}
               </p>
             </div>
-
-            {/* Summary Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <div className="flex items-center space-x-3">
@@ -360,7 +344,6 @@ export default function FavoritesPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          {/* Food Name and Rating */}
                           <div className="flex items-center space-x-3 mb-3">
                             <h4 className="font-bold text-gray-900 text-xl">
                               {rating.food_name}
@@ -385,7 +368,6 @@ export default function FavoritesPage() {
                             </div>
                           </div>
 
-                          {/* Visual Rating Stars */}
                           <div className="flex items-center space-x-2 mb-3">
                             <div className="flex space-x-1">
                               {[1, 2, 3, 4, 5].map((star) => (
@@ -407,7 +389,6 @@ export default function FavoritesPage() {
                             </span>
                           </div>
 
-                          {/* Rating Category */}
                           <div className="flex items-center space-x-2">
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-medium ${ratingLabel.color}`}
@@ -417,7 +398,6 @@ export default function FavoritesPage() {
                           </div>
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex items-center space-x-3 ml-6">
                           <button
                             onClick={() =>
