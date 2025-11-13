@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Calendar,
   Plus,
-  RefreshCw,
+  Loader2,
   Sparkles,
   Target,
   CheckCircle2,
@@ -238,7 +238,7 @@ export default function MealPlanningPage() {
                   disabled={loading}
                   className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <Loader2 className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -255,9 +255,9 @@ export default function MealPlanningPage() {
         )}
 
         {loading && (
-          <div className="text-center py-12">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-4" />
-            <p className="text-gray-600">
+          <div className="flex items-center justify-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <p className="text-gray-500">
               {mealPlan ? "Mengupdate meal plan..." : "Membuat meal plan..."}
             </p>
           </div>

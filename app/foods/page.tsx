@@ -220,7 +220,7 @@ export default function FoodsPage() {
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-            <span className="ml-2 text-gray-600">Memuat makanan...</span>
+            <span className="ml-2 text-gray-500">Memuat makanan...</span>
           </div>
         ) : foods.length === 0 ? (
           <div className="text-center py-12">

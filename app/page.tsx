@@ -60,8 +60,9 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <p className="text-gray-500">Memuat...</p>
       </div>
     );
   }
@@ -107,13 +108,6 @@ export default function HomePage() {
                     <Star className="mr-2 w-5 h-5" />
                     Dapatkan Rekomendasi
                   </Link>
-                  {/* <Link
-                    href="/meal-planning"
-                    className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center"
-                  >
-                    <Award className="mr-2 w-5 h-5" />
-                    Meal Planning
-                  </Link> */}
                 </>
               )}
             </div>
@@ -289,7 +283,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories Preview */}
+      {/* Categories  */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -382,8 +376,7 @@ export default function HomePage() {
               Siap Memulai Diet Sehat Anda?
             </h2>
             <p className="text-xl text-blue-100 mb-8">
-              Bergabunglah dengan ribuan pengguna yang sudah merasakan
-              manfaatnya
+              Bergabunglah dengan pengguna yang sudah merasakan manfaatnya
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
