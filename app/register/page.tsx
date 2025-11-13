@@ -206,7 +206,7 @@ export default function Register() {
                     htmlFor="nama"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Nama Lengkap *
+                    Nama Lengkap <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -230,7 +230,7 @@ export default function Register() {
                     htmlFor="email"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Email *
+                    Email <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -254,7 +254,7 @@ export default function Register() {
                     htmlFor="password"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Password *
+                    Password <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -289,7 +289,7 @@ export default function Register() {
                     htmlFor="confirmPassword"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Konfirmasi Password *
+                    Konfirmasi Password <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -321,7 +321,7 @@ export default function Register() {
                   {formData.password !== formData.confirmPassword &&
                     formData.confirmPassword && (
                       <p className="mt-2 text-sm text-red-600 flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <Lock className="h-4 w-4" />
                         <span>Password tidak cocok</span>
                       </p>
                     )}
@@ -451,7 +451,7 @@ export default function Register() {
 
         {/* Benefits Preview - Only on Step 1 */}
         {step === 1 && (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 cursor-pointer ">
             {[
               {
                 icon: "🎯",

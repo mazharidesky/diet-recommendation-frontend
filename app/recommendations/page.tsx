@@ -45,7 +45,6 @@ export default function RecommendationsPage() {
     fetchInitialData();
   }, [isAuthenticated]);
 
-  // Validasi apakah user sudah melengkapi data profil yang diperlukan
   const isProfileComplete = () => {
     return (
       user?.tinggi_badan &&
@@ -80,8 +79,6 @@ export default function RecommendationsPage() {
   const fetchInitialData = async () => {
     try {
       await Promise.all([fetchMethodInfo(), fetchUserStats()]);
-
-      // Hanya fetch recommendations jika profil sudah lengkap dan user pernah generate
       if (isProfileComplete() && hasGeneratedRecommendations) {
         await fetchRecommendations();
       }
@@ -264,10 +261,9 @@ export default function RecommendationsPage() {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Generate Recommendations */}
         <div className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Generate Recommendations Button */}
             <button
               onClick={handleGenerateRecommendations}
               disabled={!isComplete || loadingRecommendations}
@@ -306,7 +302,7 @@ export default function RecommendationsPage() {
               </div>
             </button>
 
-            {/* Makanan Favorit Button */}
+            {/* Makanan Favorit */}
             <button
               onClick={() => router.push("/favorites")}
               className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group"
