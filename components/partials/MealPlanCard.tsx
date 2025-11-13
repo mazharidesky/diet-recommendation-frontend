@@ -13,22 +13,22 @@ const MealPlanCard = ({
 }: MealPlanCardProps) => {
   const [completed, setCompleted] = useState(isCompleted);
 
-  // Update local state when prop changes
-  useEffect(() => {
-    setCompleted(isCompleted);
-  }, [isCompleted]);
+  // // Update local state when prop changes
+  // useEffect(() => {
+  //   setCompleted(isCompleted);
+  // }, [isCompleted]);
 
-  const handleToggleComplete = () => {
-    const newCompleted = !completed;
+  // const handleToggleComplete = () => {
+  //   const newCompleted = !completed;
 
-    // Optimistically update local state first for immediate UI feedback
-    setCompleted(newCompleted);
+  //   // Optimistically update local state first for immediate UI feedback
+  //   setCompleted(newCompleted);
 
-    // Then call the parent handler
-    if (onToggleComplete) {
-      onToggleComplete(mealType);
-    }
-  };
+  //   // Then call the parent handler
+  //   if (onToggleComplete) {
+  //     onToggleComplete(mealType);
+  //   }
+  // };
 
   const getMealTypeInfo = (type: MealType) => {
     switch (type) {
@@ -61,7 +61,6 @@ const MealPlanCard = ({
 
   const mealInfo = getMealTypeInfo(mealType);
 
-  // Check if this meal plan is personalized (dari API response structure)
   const isPersonalized = mealPlan.source === "personalized_recommendations";
 
   return (
@@ -106,7 +105,7 @@ const MealPlanCard = ({
             }`}
             title={completed ? "Tandai belum selesai" : "Tandai selesai"}
           >
-            <Check className="w-5 h-5" />
+            <Check className="w-5 h-5" />~
           </button> */}
         </div>
 
@@ -154,7 +153,7 @@ const MealPlanCard = ({
       </div>
 
       {/* Total Calories */}
-      <div className="px-6 py-4 border-t bg-gray-50">
+      <div className="px-6 py-4 border-b rounded-lg bg-gray-50">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-700">
             Total Kalori:

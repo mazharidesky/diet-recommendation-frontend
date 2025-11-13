@@ -7,7 +7,7 @@ import {
   Loader2,
   Sparkles,
   Target,
-  CheckCircle2,
+  RefreshCcw,
   AlertCircle,
 } from "lucide-react";
 import MealPlanCard from "@/components/partials/MealPlanCard";
@@ -238,7 +238,7 @@ export default function MealPlanningPage() {
                   disabled={loading}
                   className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Loader2 className="w-4 h-4" />
+                  <RefreshCcw className="w-4 h-4" />
                 </button>
               )}
             </div>

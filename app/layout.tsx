@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   // keywords: "diet, rekomendasi, makanan sehat, AI, machine learning, nutrisi",
   // authors: [{ name: "Diet Recommendation Team" }],
   metadataBase: new URL("https://maridiet.site"),
-  title: "MariDiet ",
+  title: "Mari Diet ",
   description:
-    "MariDiet – Sistem rekomendasi menu diet berbasis AI yang membantu kamu mencapai berat badan ideal dengan panduan nutrisi, tips olahraga, dan pola makan sehat berkelanjutan.",
+    "Mari Diet – Sistem rekomendasi menu diet berbasis AI yang membantu kamu mencapai berat badan ideal dengan panduan nutrisi, tips olahraga, dan pola makan sehat berkelanjutan.",
   keywords: [
     "diet sehat",
     "program diet",
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     "kalkulator kalori",
     "makanan sehat",
   ],
-  authors: [{ name: "MariDiet" }],
-  creator: "MariDiet",
-  publisher: "MariDiet",
+  authors: [{ name: "Mari Diet" }],
+  creator: "Mari Diet",
+  publisher: "Mari Diet",
   formatDetection: {
     email: false,
     address: false,
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "MariDiet",
-    title: "MariDiet | Mulai Perjalanan Diet Sehatmu Hari Ini",
+    siteName: "Mari Diet",
+    title: "Mari Diet | Mulai Perjalanan Diet Sehatmu Hari Ini",
     description:
       "Bersama MariDiet, kamu bisa mengatur pola makan dan gaya hidup yang lebih sehat. Mulai dari panduan gizi, rekomendasi makanan, hingga tips motivasi agar tetap konsisten menjalani diet.",
     url: "https://maridiet.site",
