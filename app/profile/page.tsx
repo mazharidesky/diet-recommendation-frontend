@@ -34,7 +34,7 @@ export default function ProfilePage() {
     berat_badan: undefined,
     target_berat: undefined,
     aktivitas: "moderate",
-    diet_goal: "menjaga", // ✅ Default value yang sesuai dengan enum
+    diet_goal: "menjaga",
     alergi: "",
   });
   const [medicalConditions, setMedicalConditions] = useState<
@@ -70,7 +70,7 @@ export default function ProfilePage() {
           diet_goal:
             user.diet_goal === "menambah"
               ? "menaikkan"
-              : user.diet_goal || "menjaga", // ✅ Pastikan enum sesuai
+              : user.diet_goal || "menjaga",
           alergi: user.alergi || "",
           bmr: user.bmr || undefined,
           target_kalori: user.target_kalori || undefined,
@@ -100,7 +100,6 @@ export default function ProfilePage() {
     const { name, value } = e.target;
 
     setFormData((prev) => {
-      // Handle numeric fields
       if (
         ["umur", "tinggi_badan", "berat_badan", "target_berat"].includes(name)
       ) {
@@ -116,7 +115,6 @@ export default function ProfilePage() {
         };
       }
 
-      // Handle string fields
       return {
         ...prev,
         [name]: value,
@@ -129,7 +127,6 @@ export default function ProfilePage() {
     setSaving(true);
 
     try {
-      // Filter out undefined values dan exclude bmr/target_kalori (dikalkulasi di backend)
       const cleanedData = Object.fromEntries(
         Object.entries(formData).filter(([key, value]) => {
           if (key === "bmr" || key === "target_kalori") return false;
@@ -141,7 +138,6 @@ export default function ProfilePage() {
 
       const response = await userService.updateProfile(cleanedData);
 
-      // Update formData dengan response dari backend
       if (response.user) {
         setFormData((prev) => ({
           ...prev,
@@ -265,7 +261,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
           <p className="text-gray-600">Memuat profil...</p>
@@ -290,8 +286,6 @@ export default function ProfilePage() {
             Kelola informasi pribadi dan preferensi diet Anda
           </p>
         </div>
-
-        {/* Tabs */}
         <div className="bg-white rounded-lg shadow-md mb-8">
           <div className="border-b border-gray-200">
             <nav className="flex">
@@ -328,7 +322,6 @@ export default function ProfilePage() {
           {activeTab === "profile" && (
             <div className="p-6">
               <form onSubmit={handleProfileSubmit} className="space-y-6">
-                {/* Basic Info */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Informasi Dasar
@@ -456,7 +449,6 @@ export default function ProfilePage() {
 
                   {/* Health Metrics Display */}
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* BMI Display */}
                     {bmi && (
                       <div className="p-4 bg-blue-50 rounded-lg">
                         <div className="flex items-center space-x-3">
@@ -475,7 +467,6 @@ export default function ProfilePage() {
                       </div>
                     )}
 
-                    {/* BMR Display */}
                     {formData.bmr && (
                       <div className="p-4 bg-green-50 rounded-lg">
                         <div className="flex items-center space-x-3">
@@ -493,7 +484,6 @@ export default function ProfilePage() {
                       </div>
                     )}
 
-                    {/* Target Kalori Display */}
                     {formData.target_kalori && (
                       <div className="p-4 bg-purple-50 rounded-lg">
                         <div className="flex items-center space-x-3">
@@ -560,7 +550,6 @@ export default function ProfilePage() {
                         <option value="menaikkan">
                           Menambah Berat Badan
                         </option>{" "}
-                        {/* ✅ Perbaiki dari 'menambah' ke 'menaikkan' */}
                       </select>
                     </div>
                   </div>

@@ -18,7 +18,7 @@ import {
   GenerateMealPlanRequest,
 } from "@/types/index";
 
-const MealPlanningPage = () => {
+export default function MealPlanningPage() {
   const [mealPlan, setMealPlan] = useState<MealPlanResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
@@ -38,8 +38,6 @@ const MealPlanningPage = () => {
     lunch: false,
     dinner: false,
   });
-
-  // Load meal plan on component mount and date change
   useEffect(() => {
     loadMealPlan(selectedDate);
   }, [selectedDate]);
@@ -58,7 +56,6 @@ const MealPlanningPage = () => {
       }
     } catch (err) {
       console.error("Error loading meal plan:", err);
-      // Check if it's a 404 error (no meal plan found)
       if (
         err &&
         typeof err === "object" &&
@@ -103,12 +100,10 @@ const MealPlanningPage = () => {
     if (!mealPlan) return;
 
     try {
-      // Set loading state untuk meal type ini
       setCompletionLoading((prev) => ({ ...prev, [mealType]: true }));
 
       const currentStatus = mealPlan.completion_status[mealType];
 
-      // Optimistically update local state first
       setMealPlan((prev) =>
         prev
           ? {
@@ -121,14 +116,12 @@ const MealPlanningPage = () => {
           : null
       );
 
-      // Make API call
       const result = await mealPlanningService.markMealCompleted(
         selectedDate,
         mealType,
         !currentStatus
       );
 
-      // Update with server response
       setMealPlan((prev) =>
         prev
           ? {
@@ -142,7 +135,6 @@ const MealPlanningPage = () => {
       console.error("Error updating meal completion:", err);
       setError(handleApiError(err));
 
-      // Revert optimistic update on error
       if (mealPlan) {
         setMealPlan((prev) =>
           prev
@@ -150,7 +142,7 @@ const MealPlanningPage = () => {
                 ...prev,
                 completion_status: {
                   ...prev.completion_status,
-                  [mealType]: mealPlan.completion_status[mealType], // Revert to original state
+                  [mealType]: mealPlan.completion_status[mealType],
                 },
               }
             : null
@@ -184,9 +176,6 @@ const MealPlanningPage = () => {
     return { completed, total: 3 };
   };
 
-  const completionStats = getCompletionStats();
-
-  // Handler untuk regenerate dengan force
   const handleRegenerate = () => generateMealPlan(true);
 
   return (
@@ -203,10 +192,8 @@ const MealPlanningPage = () => {
           </p>
         </div>
 
-        {/* Controls */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-            {/* Date Picker */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Calendar className=" w-4 h-4 inline mr-1" />
@@ -220,7 +207,6 @@ const MealPlanningPage = () => {
               />
             </div>
 
-            {/* Approach Selector */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Target className="w-4 h-4 inline mr-1" />
@@ -236,28 +222,6 @@ const MealPlanningPage = () => {
                 <option value="lunch_heavy">Makan Siang Besar</option>
               </select>
             </div>
-
-            {/* ML Toggle */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Sparkles className="w-4 h-4 inline mr-1" />
-                AI Personalisasi
-              </label>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="useML"
-                  checked={useML}
-                  onChange={(e) => setUseML(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="useML" className="text-sm text-gray-700">
-                  Gunakan AI
-                </label>
-              </div>
-            </div> */}
-
-            {/* Action Buttons */}
             <div className="flex space-x-2">
               <button
                 onClick={() => generateMealPlan(false)}
@@ -280,8 +244,6 @@ const MealPlanningPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Error Display */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start space-x-2">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -292,7 +254,6 @@ const MealPlanningPage = () => {
           </div>
         )}
 
-        {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-4" />
@@ -305,9 +266,7 @@ const MealPlanningPage = () => {
         {/* Meal Plan Content */}
         {!loading && mealPlan && (
           <>
-            {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {/* Total Calories */}
               <div className="bg-white rounded-lg p-4 shadow-sm border">
                 <div className="flex items-center space-x-2 mb-1">
                   <Target className="w-4 h-4 text-orange-500" />
@@ -321,21 +280,6 @@ const MealPlanningPage = () => {
                 <p className="text-xs text-gray-500">kcal</p>
               </div>
 
-              {/* Completion Rate */}
-              {/* <div className="bg-white rounded-lg p-4 shadow-sm border">
-                <div className="flex items-center space-x-2 mb-1">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium text-gray-700">
-                    Progress
-                  </span>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {completionStats.completed}/{completionStats.total}
-                </p>
-                <p className="text-xs text-gray-500">makanan selesai</p>
-              </div> */}
-
-              {/* Approach */}
               <div className="bg-white rounded-lg p-4 shadow-sm border">
                 <div className="flex items-center space-x-2 mb-1">
                   <Calendar className="w-4 h-4 text-blue-500" />
@@ -347,8 +291,6 @@ const MealPlanningPage = () => {
                   {getApproachLabel(mealPlan.approach)}
                 </p>
               </div>
-
-              {/* ML Status */}
               <div className="bg-white rounded-lg p-4 shadow-sm border">
                 <div className="flex items-center space-x-2 mb-1">
                   <Sparkles className="w-4 h-4 text-purple-500" />
@@ -439,6 +381,4 @@ const MealPlanningPage = () => {
       </div>
     </div>
   );
-};
-
-export default MealPlanningPage;
+}
