@@ -3,11 +3,7 @@
 import {
   useState,
   useEffect,
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
+  useMemo, // Tambahkan useMemo
 } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,10 +12,6 @@ import { Food } from "@/types";
 import {
   ArrowLeft,
   Star,
-  Heart,
-  ThumbsUp,
-  ThumbsDown,
-  Info,
   Zap,
   Activity,
   Droplets,
@@ -29,16 +21,73 @@ import {
   AlertTriangle,
   CheckCircle,
   Loader2,
-  TrendingUp,
+  Info, // Tambahkan icon Info
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+
+// --- FUNGSI UTILS (SAMA DENGAN FOOD CARD) ---
+
+const filterWordsForDisplay = (text: string): string => {
+  if (!text || typeof text !== "string") return text || "";
+  const wordsToRemove = ["mentah", "masakan"];
+  return text
+    .split(",")
+    .map((part) => {
+      const words = part
+        .trim()
+        .split(/\s+/)
+        .filter((word) => {
+          const cleanWord = word.toLowerCase().replace(/[^\w]/g, "");
+          return !wordsToRemove.includes(cleanWord);
+        });
+      return words.join(" ").trim();
+    })
+    .filter((part) => part.length > 0)
+    .join(", ")
+    .trim();
+};
+
+const analyzeDietSuitability = (diets: string[], food: Food) => {
+  const safe: string[] = [];
+  const warning: string[] = [];
+
+  diets.forEach((diet) => {
+    const d = diet.toLowerCase();
+    let isRisky = false;
+
+    // Logika Validasi Medis
+    if (
+      (d.includes("hypertension") || d.includes("heart")) &&
+      (food.natrium || 0) > 200
+    ) {
+      isRisky = true;
+    } else if (
+      d.includes("obesity") &&
+      ((food.energi || 0) > 200 || (food.estimated_gi || 0) > 70)
+    ) {
+      isRisky = true;
+    } else if (d.includes("diabetes") && (food.estimated_gi || 0) > 55) {
+      isRisky = true;
+    }
+
+    if (isRisky) {
+      warning.push(diet);
+    } else {
+      safe.push(diet);
+    }
+  });
+
+  return { safe, warning };
+};
+
+// --- KOMPONEN UTAMA ---
 
 export default function FoodDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { isAuthenticated } = useAuth();
   const [food, setFood] = useState<Food | null>(null);
-  const [similarFoods, setSimilarFoods] = useState<Food[]>([]);
+  const [similarFoods, setSimilarFoods] = useState<Food[]>([]); // Biarkan state ini meski UI dikomentar
   const [loading, setLoading] = useState(true);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [userRating, setUserRating] = useState<number>(0);
@@ -65,7 +114,6 @@ export default function FoodDetailPage() {
       const response = await foodService.getFood(foodId);
       setFood(response.food);
 
-      // Set existing rating jika ada
       if (response.food.user_rating) {
         setUserRating(Number(response.food.user_rating));
       }
@@ -83,7 +131,6 @@ export default function FoodDetailPage() {
 
   const fetchSimilarFoods = async () => {
     if (!food) return;
-
     setLoadingSimilar(true);
     try {
       const response = await recommendationService.getSimilarFoods(
@@ -103,7 +150,6 @@ export default function FoodDetailPage() {
       toast.error("Silakan login untuk memberikan rating");
       return;
     }
-
     setSubmittingRating(true);
     try {
       await foodService.rateFood(foodId, { rating });
@@ -112,28 +158,6 @@ export default function FoodDetailPage() {
     } catch (error) {
       console.error("Error submitting rating:", error);
       toast.error("Gagal menyimpan rating");
-    } finally {
-      setSubmittingRating(false);
-    }
-  };
-
-  const handleLike = async (liked: boolean) => {
-    if (!isAuthenticated) {
-      toast.error("Silakan login untuk menyukai makanan");
-      return;
-    }
-
-    setSubmittingRating(true);
-    try {
-      await foodService.rateFood(foodId, {
-        is_liked: liked,
-        rating: 0,
-      });
-      setIsLiked(liked);
-      toast.success(liked ? "Makanan disukai!" : "Like dihapus");
-    } catch (error) {
-      console.error("Error submitting like:", error);
-      toast.error("Gagal menyimpan like");
     } finally {
       setSubmittingRating(false);
     }
@@ -157,6 +181,39 @@ export default function FoodDetailPage() {
     if (gi <= 70) return "Sedang";
     return "Tinggi";
   };
+
+  // --- LOGIKA UTILS UNTUK FORMATTING DATA ---
+  const formatDietSuitability = (suitability?: string | string[] | null) => {
+    try {
+      if (!suitability) return [];
+      let result: string[] = [];
+
+      if (Array.isArray(suitability)) {
+        result = suitability;
+      } else if (typeof suitability === "string") {
+        result = suitability.split(",");
+      } else if (typeof suitability === "object" && suitability !== null) {
+        const values = Object.values(suitability);
+        if (values.length > 0 && Array.isArray(values[0])) {
+          result = values[0];
+        }
+      }
+      return result
+        .map((item) =>
+          filterWordsForDisplay(typeof item === "string" ? item : "")
+        )
+        .filter((item) => item.length > 0);
+    } catch (error) {
+      return [];
+    }
+  };
+
+  // Analisis Diet (Memoized)
+  const dietAnalysis = useMemo(() => {
+    if (!food) return { safe: [], warning: [] };
+    const rawList = formatDietSuitability(food.diet_suitability);
+    return analyzeDietSuitability(rawList, food);
+  }, [food]);
 
   if (loading) {
     return (
@@ -203,25 +260,26 @@ export default function FoodDetailPage() {
 
           <div className="bg-white rounded-xl shadow-lg p-8">
             <div className="flex flex-col lg:flex-row gap-8">
-              {/* Food Image Placeholder */}
               {/* Food Info */}
-              <div className="lg:w-2/3">
+              <div className="w-full">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      {food.nama_makanan}
+                      {filterWordsForDisplay(food.nama_makanan)}
                     </h1>
                     <p className="text-lg text-gray-600">
-                      Kategori: {food.category_name}
+                      Kategori:{" "}
+                      {filterWordsForDisplay(food.category_name || "")}
                     </p>
                   </div>
 
                   {/* Health Score Badge */}
                   <div
-                    className={`px-4 py-2 rounded-full text-sm font-semibold ${getHealthScoreColor(
+                    className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center ${getHealthScoreColor(
                       food.health_score || 0
                     )}`}
                   >
+                    <Zap className="w-4 h-4 mr-2" />
                     Health Score: {food.health_score || 0}/100
                   </div>
                 </div>
@@ -365,23 +423,23 @@ export default function FoodDetailPage() {
             </h2>
 
             {/* Glycemic Index */}
-            {food.estimated_gi && (
+            {typeof food.estimated_gi === "number" && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">
                     Indeks Glikemik
                   </span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${getGIColor(
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${getGIColor(
                       food.estimated_gi
                     )}`}
                   >
-                    {getGILabel(food.estimated_gi)}
+                    {food.estimated_gi} - {getGILabel(food.estimated_gi)}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
+                    className={`h-2.5 rounded-full transition-all duration-300 ${
                       food.estimated_gi <= 55
                         ? "bg-green-500"
                         : food.estimated_gi <= 70
@@ -391,8 +449,9 @@ export default function FoodDetailPage() {
                     style={{ width: `${Math.min(food.estimated_gi, 100)}%` }}
                   ></div>
                 </div>
-                <p className="text-xs text-gray-600 mt-1">
-                  Nilai: {food.estimated_gi}
+                <p className="text-xs text-gray-500 mt-2 flex items-center">
+                  <Info className="w-3 h-3 mr-1" />
+                  Semakin rendah IG, semakin stabil gula darah.
                 </p>
               </div>
             )}
@@ -430,27 +489,68 @@ export default function FoodDetailPage() {
               </div>
             )}
 
-            {/* Diet Suitability */}
-            {food.diet_suitability && (
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  Cocok untuk Diet
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {(Array.isArray(food.diet_suitability)
-                    ? food.diet_suitability
-                    : [food.diet_suitability]
-                  ).map((diet, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full"
-                    >
-                      {diet}
-                    </span>
-                  ))}
+            {/* Diet Suitability (UPDATED LOGIC) */}
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Rekomendasi Diet
+              </h3>
+
+              {/* Jika tidak ada data sama sekali */}
+              {dietAnalysis.safe.length === 0 &&
+                dietAnalysis.warning.length === 0 && (
+                  <p className="text-sm text-gray-500 italic">
+                    Belum ada data rekomendasi spesifik.
+                  </p>
+                )}
+
+              {/* Kelompok AMAN (Hijau) */}
+              {dietAnalysis.safe.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-xs text-gray-500 block mb-2">
+                    Sangat cocok untuk:
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {dietAnalysis.safe.map((diet, index) => (
+                      <span
+                        key={`safe-${index}`}
+                        className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full flex items-center"
+                      >
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {diet}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Kelompok PERINGATAN (Merah/Oranye) */}
+              {dietAnalysis.warning.length > 0 && (
+                <div className="bg-red-50 border border-red-100 rounded-lg p-4 mt-3">
+                  <div className="flex items-start">
+                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-2 shrink-0" />
+                    <div>
+                      <h4 className="text-sm font-semibold text-red-800 mb-1">
+                        Perhatian Diperlukan
+                      </h4>
+                      <p className="text-xs text-red-600 mb-3">
+                        Bahan ini mengandung Kalori, IG, atau Natrium yang cukup
+                        tinggi untuk kondisi berikut:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {dietAnalysis.warning.map((diet, index) => (
+                          <span
+                            key={`warn-${index}`}
+                            className="px-2 py-1 bg-white text-red-700 border border-red-200 text-xs font-medium rounded-md shadow-sm"
+                          >
+                            {diet}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

@@ -1,7 +1,15 @@
 "use client";
 
-import { useState, useCallback, memo } from "react";
-import { Star, Heart, Zap, Utensils, Link, ExternalLink } from "lucide-react";
+import { useState, useCallback, memo, useMemo } from "react";
+import {
+  Star,
+  Heart,
+  Zap,
+  Utensils,
+  Link,
+  ExternalLink,
+  AlertTriangle, // Import icon baru untuk warning
+} from "lucide-react";
 import { foodService, handleApiError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Food } from "@/types";
@@ -15,17 +23,15 @@ interface FoodCardProps {
   onClick?: () => void;
 }
 
-// Fungsi untuk memfilter kata-kata yang tidak diinginkan HANYA UNTUK TAMPILAN
+// --- FUNGSI UTILS ---
+
+// Fungsi filter kata (HANYA UNTUK TAMPILAN)
 const filterWordsForDisplay = (text: string): string => {
   if (!text || typeof text !== "string") return text || "";
-
   const wordsToRemove = ["mentah", "masakan"];
-
-  // Split berdasarkan koma terlebih dahulu, lalu proses setiap bagian
   return text
     .split(",")
     .map((part) => {
-      // Proses setiap bagian yang dipisah koma
       const words = part
         .trim()
         .split(/\s+/)
@@ -33,13 +39,58 @@ const filterWordsForDisplay = (text: string): string => {
           const cleanWord = word.toLowerCase().replace(/[^\w]/g, "");
           return !wordsToRemove.includes(cleanWord);
         });
-
       return words.join(" ").trim();
     })
-    .filter((part) => part.length > 0) // Hapus bagian kosong
-    .join(", ") // Gabungkan kembali dengan koma dan spasi
+    .filter((part) => part.length > 0)
+    .join(", ")
     .trim();
 };
+
+// Logika Analisis Kecocokan Diet (Frontend Validation)
+const analyzeDietSuitability = (diets: string[], food: Food) => {
+  const safe: string[] = [];
+  const warning: string[] = [];
+
+  diets.forEach((diet) => {
+    const d = diet.toLowerCase();
+    let isRisky = false;
+
+    // --- LOGIKA VALIDASI MEDIS ---
+
+    // 1. Hipertensi & Jantung: Bahaya jika Natrium > 200mg (Camilan) atau > 400mg (Berat)
+    // Kita ambil batas aman camilan/per porsi: 200mg
+    if (
+      (d.includes("hypertension") || d.includes("heart")) &&
+      (food.natrium || 0) > 200
+    ) {
+      isRisky = true;
+    }
+
+    // 2. Obesitas: Bahaya jika Kalori > 200 ATAU GI Tinggi (> 70)
+    else if (
+      d.includes("obesity") &&
+      ((food.energi || 0) > 200 || (food.estimated_gi || 0) > 70)
+    ) {
+      isRisky = true;
+    }
+
+    // 3. Diabetes: Bahaya jika GI Sedang ke Atas (> 55 adalah batas rendah, > 70 tinggi)
+    // Kita set > 55 agar lebih ketat untuk penderita diabetes
+    else if (d.includes("diabetes") && (food.estimated_gi || 0) > 55) {
+      isRisky = true;
+    }
+
+    if (isRisky) {
+      warning.push(diet);
+    } else {
+      safe.push(diet);
+    }
+  });
+
+  return { safe, warning };
+};
+
+// --- COMPONENT UTAMA ---
 
 const FoodCard = memo(function FoodCard({
   food,
@@ -59,18 +110,15 @@ const FoodCard = memo(function FoodCard({
         toast.error("Silakan login untuk memberikan rating");
         return;
       }
-
       setIsRating(true);
       try {
         await foodService.rateFood(food.food_id, {
           rating: newRating,
           is_liked: newRating >= 4,
         });
-
         setRating(newRating);
         setIsLiked(newRating >= 4);
         toast.success("Rating berhasil disimpan!");
-
         if (onRatingUpdate) {
           onRatingUpdate(food.food_id, newRating);
         }
@@ -88,20 +136,16 @@ const FoodCard = memo(function FoodCard({
       toast.error("Silakan login untuk menyukai makanan");
       return;
     }
-
     const newLikedState = !isLiked;
     setIsLiked(newLikedState);
-
     try {
       await foodService.rateFood(food.food_id, {
         rating: rating || (newLikedState ? 5 : 3),
         is_liked: newLikedState,
       });
-
       if (!rating) {
         setRating(newLikedState ? 5 : 3);
       }
-
       toast.success(
         newLikedState ? "Ditambahkan ke favorit!" : "Dihapus dari favorit"
       );
@@ -119,7 +163,7 @@ const FoodCard = memo(function FoodCard({
 
   const handleViewDetail = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation(); // Prevent card click
+      e.stopPropagation();
       router.push(`/foods/${food.food_id}`);
     },
     [router, food.food_id]
@@ -134,7 +178,6 @@ const FoodCard = memo(function FoodCard({
 
   const getNutritionColor = useCallback((value?: number, type?: string) => {
     if (!value) return "text-gray-600";
-
     switch (type) {
       case "protein":
         return value >= 10 ? "text-green-600" : "text-gray-600";
@@ -153,33 +196,25 @@ const FoodCard = memo(function FoodCard({
     (suitability?: string | string[] | null) => {
       try {
         if (!suitability) return [];
+        let result: string[] = [];
 
         if (Array.isArray(suitability)) {
-          return suitability
-            .map((item) => filterWordsForDisplay(item)) // Filter hanya untuk tampilan
-            .filter((item) => item.length > 0) // Hapus item kosong setelah filtering
-            .slice(0, 3);
-        }
-
-        if (typeof suitability === "string") {
-          return suitability
-            .split(",")
-            .map((s) => filterWordsForDisplay(s.trim())) // Filter hanya untuk tampilan
-            .filter((s) => s.length > 0)
-            .slice(0, 3);
-        }
-
-        if (typeof suitability === "object" && suitability !== null) {
+          result = suitability;
+        } else if (typeof suitability === "string") {
+          result = suitability.split(",");
+        } else if (typeof suitability === "object" && suitability !== null) {
           const values = Object.values(suitability);
           if (values.length > 0 && Array.isArray(values[0])) {
-            return values[0]
-              .map((item) => filterWordsForDisplay(item)) // Filter hanya untuk tampilan
-              .filter((item) => item.length > 0) // Hapus item kosong setelah filtering
-              .slice(0, 3);
+            result = values[0];
           }
         }
 
-        return [];
+        return result
+          .map((item) =>
+            filterWordsForDisplay(typeof item === "string" ? item : "")
+          )
+          .filter((item) => item.length > 0)
+          .slice(0, 4); // Mengambil maksimal 4 item agar card tidak kepanjangan
       } catch (error) {
         console.error("Error formatting diet suitability:", error, suitability);
         return [];
@@ -197,9 +232,16 @@ const FoodCard = memo(function FoodCard({
     );
   }
 
-  const dietSuitabilityList = formatDietSuitability(food.diet_suitability);
+  // 1. Ambil list diet mentah yang sudah dibersihkan string-nya
+  const rawDietList = formatDietSuitability(food.diet_suitability);
 
-  // Filter HANYA UNTUK TAMPILAN - data asli tetap utuh untuk pencarian
+  // 2. Analisis ulang berdasarkan nilai nutrisi (Memoized untuk performa)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const { safe: safeDiets, warning: warningDiets } = useMemo(
+    () => analyzeDietSuitability(rawDietList, food),
+    [rawDietList, food.natrium, food.energi, food.estimated_gi]
+  );
+
   const displayFoodName = filterWordsForDisplay(food.nama_makanan);
   const displayCategoryName = filterWordsForDisplay(
     food.category?.category_name || "Makanan"
@@ -207,13 +249,13 @@ const FoodCard = memo(function FoodCard({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden ${
+      className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-full ${
         onClick ? "cursor-pointer transform hover:scale-105" : ""
       }`}
       {...(onClick && { onClick: handleCardClick })}
     >
       {/* Food Image Placeholder */}
-      <div className="h-48 bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center relative">
+      <div className="h-48 bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center relative shrink-0">
         <div className="text-blue-600 text-center">
           <Utensils className="w-12 h-12 mx-auto mb-2" />
           <span className="text-sm font-medium">{displayCategoryName}</span>
@@ -232,9 +274,9 @@ const FoodCard = memo(function FoodCard({
         )}
       </div>
 
-      <div className="p-4">
-        {/* Food Name - Tampilkan versi yang sudah difilter */}
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Food Name */}
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem]">
           {displayFoodName}
         </h3>
 
@@ -255,21 +297,43 @@ const FoodCard = memo(function FoodCard({
         {/* Nutrition Info */}
         <NutritionInfo food={food} getNutritionColor={getNutritionColor} />
 
-        {/* Diet Suitability - Sudah difilter dalam formatDietSuitability */}
-        {dietSuitabilityList.length > 0 && (
-          <div className="mb-3">
+        {/* --- DIET SUITABILITY SECTION (UPDATED) --- */}
+        <div className="mb-3 space-y-2 flex-grow">
+          {/* Kelompok AMAN (Hijau) */}
+          {safeDiets.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {dietSuitabilityList.map((diet, index) => (
+              {safeDiets.map((diet, index) => (
                 <span
-                  key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  key={`safe-${index}`}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200"
                 >
                   {diet}
                 </span>
               ))}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Kelompok PERINGATAN (Merah/Oranye) */}
+          {warningDiets.length > 0 && (
+            <div className="flex flex-col gap-1 mt-2">
+              <div className="flex items-center text-xs text-orange-700 font-semibold mb-1">
+                <AlertTriangle className="w-3 h-3 mr-1" />
+                <span>Perlu perhatian:</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {warningDiets.map((diet, index) => (
+                  <span
+                    key={`warn-${index}`}
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200 opacity-90"
+                    title="Nilai GI atau Natrium mungkin terlalu tinggi untuk kondisi ini"
+                  >
+                    ⚠️ {diet}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Estimated GI */}
         {typeof food.estimated_gi === "number" && (
@@ -277,7 +341,7 @@ const FoodCard = memo(function FoodCard({
         )}
 
         {/* Detail Button */}
-        <div className="mb-3">
+        <div className="mt-auto pt-3">
           <button
             onClick={handleViewDetail}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
@@ -289,19 +353,22 @@ const FoodCard = memo(function FoodCard({
 
         {/* Rating Section */}
         {showRating && (
-          <RatingSection
-            isAuthenticated={isAuthenticated}
-            rating={rating}
-            isRating={isRating}
-            onRating={handleRating}
-          />
+          <div className="mt-3">
+            <RatingSection
+              isAuthenticated={isAuthenticated}
+              rating={rating}
+              isRating={isRating}
+              onRating={handleRating}
+            />
+          </div>
         )}
       </div>
     </div>
   );
 });
 
-// Separate components to avoid serialization issues
+// --- SUB COMPONENTS (Tetap Sama) ---
+
 const LikeButton = memo(function LikeButton({
   isLiked,
   onLike,
@@ -315,7 +382,7 @@ const LikeButton = memo(function LikeButton({
         e.stopPropagation();
         onLike();
       }}
-      className="absolute top-2 left-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
+      className="absolute top-2 left-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
       type="button"
     >
       <Heart
